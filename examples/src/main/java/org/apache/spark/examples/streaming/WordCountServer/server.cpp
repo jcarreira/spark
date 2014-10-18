@@ -15,7 +15,9 @@
 #define MILISECOND 1000 // 1ms = 1000 microseconds
 //#define SLEEP_TIME (MILISECOND*10)
 
-#define MESSAGES_PER_SEC 10000000
+#define RECORD_CONTENT "1234567890\n" //10 bytes of content + newline
+
+//#define MESSAGES_PER_SEC 100
 #define MSEC_IN_SEC 1000
 #define USEC_IN_SEC 1000000
 
@@ -33,6 +35,12 @@ unsigned long int msec_diff_time(struct timeval begin, struct timeval end) {
 }
 
 int main(int argc, char *argv[]) {
+
+    // server <messages per second>
+    assert(argc == 2);
+
+    int MESSAGES_PER_SEC = atoi(argv[1]);
+
     int listenfd = 0, connfd = 0;
     struct sockaddr_in serv_addr; 
 
@@ -65,7 +73,7 @@ int main(int argc, char *argv[]) {
 
     ticks = time(NULL);
     //snprintf(sendBuff, sizeof(sendBuff), "%.24s\r\n", ctime(&ticks));
-    strcpy(sendBuff, "test\n");
+    strcpy(sendBuff, RECORD_CONTENT);
 
     while (1) {
         struct timeval begin, end;
