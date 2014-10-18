@@ -66,21 +66,21 @@ int main(int argc, char *argv[]) {
 
     printf("Listening on port %d\n", PORT);
 
-    //    while(1) {
     connfd = accept(listenfd, (struct sockaddr*)NULL, NULL); 
 
     printf("Accepted connection\n");
 
     ticks = time(NULL);
-    //snprintf(sendBuff, sizeof(sendBuff), "%.24s\r\n", ctime(&ticks));
     strcpy(sendBuff, RECORD_CONTENT);
+
+    int buf_len = strlen(sendBuff);
 
     while (1) {
         struct timeval begin, end;
         gettimeofday(&begin, NULL);
 
         for (int i = 0; i < MESSAGES_PER_SEC; ++i)
-            write(connfd, sendBuff, strlen(sendBuff)); 
+            write(connfd, sendBuff, buf_len);
         
         gettimeofday(&end, NULL);
         unsigned long int msec_elapsed = msec_diff_time(begin, end);
@@ -88,8 +88,6 @@ int main(int argc, char *argv[]) {
         printf ("Elapsed: %lu msec\n", msec_elapsed);
 
         // we have to sleep 1sec - <time spent sending>
-
-
         // if we spend more than 1 sec sending, we are already running late
 
         if (msec_elapsed > MSEC_IN_SEC) {
@@ -106,7 +104,6 @@ int main(int argc, char *argv[]) {
 
     close(connfd);
     sleep(1);
-    //    }
     return 0;
 }
 
