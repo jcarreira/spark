@@ -62,7 +62,7 @@ int main(int argc, char *argv[]) {
         perror("bind");
     }
 
-    assert ( listen(listenfd, 10) != -1);
+    assert ( listen(listenfd, 1) != -1);
 
     printf("Listening on port %d\n", PORT);
 
