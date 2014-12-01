@@ -113,6 +113,8 @@ private[spark] class CoarseGrainedExecutorBackend(
 
 private[spark] object CoarseGrainedExecutorBackend extends Logging {
 
+  private var schedulerActor: ActorSelection = null
+
   private def run(
       driverUrl: String,
       executorId: String,
@@ -122,8 +124,6 @@ private[spark] object CoarseGrainedExecutorBackend extends Logging {
       workerUrl: Option[String]) {
 
     SignalLogger.register(log)
-	    
-    private var schedulerActor: ActorSelection = null
 
     SparkHadoopUtil.get.runAsSparkUser { () =>
       // Debug code

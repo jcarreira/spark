@@ -30,11 +30,16 @@ private[spark] object CoarseGrainedClusterMessages {
 
   // Driver to executors
   case class LaunchTask(data: SerializableBuffer) extends CoarseGrainedClusterMessage
+  case class LaunchTaskDecentralized(executorId: String, 
+                    data: SerializableBuffer) extends CoarseGrainedClusterMessage
 
   case class KillTask(taskId: Long, executor: String, interruptThread: Boolean)
     extends CoarseGrainedClusterMessage
 
   case object RegisteredExecutor extends CoarseGrainedClusterMessage
+
+  case class DriverConfMessage(conf: Seq[(String, String)]) extends CoarseGrainedClusterMessage
+  case class RegisterExecutorScheduler(executorId: String, executorAddr: String)
 
   case class RegisterExecutorFailed(message: String) extends CoarseGrainedClusterMessage
 

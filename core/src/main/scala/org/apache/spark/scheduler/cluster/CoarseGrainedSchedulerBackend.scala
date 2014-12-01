@@ -213,7 +213,8 @@ class CoarseGrainedSchedulerBackend(scheduler: TaskSchedulerImpl, val actorSyste
           //executorData.executorActor ! LaunchTask(new SerializableBuffer(serializedTask))
           
           // send to our scheduler instead
-          schedulerActor ! LaunchTaskDecentralized(task.executorId.toString, serBuffer);
+          schedulerActor ! LaunchTaskDecentralized(task.executorId.toString, 
+                         new SerializableBuffer(serializedTask))
                             
           // We should coalesce tasks here
         }
