@@ -72,6 +72,9 @@ class CoarseGrainedSchedulerBackend(scheduler: TaskSchedulerImpl, val actorSyste
   class DriverActor(sparkProperties: Seq[(String, String)]) extends Actor with ActorLogReceive {
     override protected def log = CoarseGrainedSchedulerBackend.this.log
     private val addressToExecutorId = new HashMap[Address, String]
+    
+    // actor to communicate with decentralized scheduler
+    private var schedulerActor: ActorSelection = null
 
     override def preStart() {
       // Listen for remote client disconnection events, since they don't go through Akka's watch()
@@ -81,6 +84,16 @@ class CoarseGrainedSchedulerBackend(scheduler: TaskSchedulerImpl, val actorSyste
       val reviveInterval = conf.getLong("spark.scheduler.revive.interval", 1000)
       import context.dispatcher
       context.system.scheduler.schedule(0.millis, reviveInterval.millis, self, ReviveOffers)
+
+      // create actor
+      schedulerActor = actorSystem.actorSelection("akka.tcp://server@f16:8338/user/server")
+
+      // check that it is not null
+      if (schedulerActor != null) println ("schedulerActor not null");
+      else println("schedulerActor is null");
+
+      // inform scheduler
+      schedulerActor ! "CoarseGrainedSchedulerBackend actor create";
     }
 
     def receiveWithLogging = {
@@ -195,7 +208,14 @@ class CoarseGrainedSchedulerBackend(scheduler: TaskSchedulerImpl, val actorSyste
         else {
           val executorData = executorDataMap(task.executorId)
           executorData.freeCores -= scheduler.CPUS_PER_TASK
-          executorData.executorActor ! LaunchTask(new SerializableBuffer(serializedTask))
+
+          // no need to send to this scheduler now
+          //executorData.executorActor ! LaunchTask(new SerializableBuffer(serializedTask))
+          
+          // send to our scheduler instead
+          schedulerActor ! LaunchTaskDecentralized(task.executorId.toString, serBuffer);
+                            
+          // We should coalesce tasks here
         }
       }
     }

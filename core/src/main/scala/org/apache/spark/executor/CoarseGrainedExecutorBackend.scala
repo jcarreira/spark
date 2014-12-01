@@ -46,12 +46,23 @@ private[spark] class CoarseGrainedExecutorBackend(
 
   var executor: Executor = null
   var driver: ActorSelection = null
+  
+  // actor to communicate with scheduler
+  var schedulerActor: ActorSelection = null;
 
   override def preStart() {
     logInfo("Connecting to driver: " + driverUrl)
     driver = context.actorSelection(driverUrl)
+
     driver ! RegisterExecutor(executorId, hostPort, cores)
     context.system.eventStream.subscribe(self, classOf[RemotingLifecycleEvent])
+    
+    // create actor
+    // scheduler address should be dynamic
+    // we should have more schedulers
+    schedulerActor = context.actorSelection("akka.tcp://server@f16:8338/user/server")
+    // register this executor
+    schedulerActor ! RegisterExecutorScheduler(executorId, "dont use this")
   }
 
   override def receiveWithLogging = {
@@ -111,6 +122,8 @@ private[spark] object CoarseGrainedExecutorBackend extends Logging {
       workerUrl: Option[String]) {
 
     SignalLogger.register(log)
+	    
+    private var schedulerActor: ActorSelection = null
 
     SparkHadoopUtil.get.runAsSparkUser { () =>
       // Debug code
@@ -130,6 +143,12 @@ private[spark] object CoarseGrainedExecutorBackend extends Logging {
 
       // Create a new ActorSystem using driver's Spark properties to run the backend.
       val driverConf = new SparkConf().setAll(props)
+
+      // create actor
+      schedulerActor = fetcher.actorSelection("akka.tcp://server@f16:8338/user/server");
+      // send akka config to scheduler
+      schedulerActor ! DriverConfMessage(props);
+
       val (actorSystem, boundPort) = AkkaUtils.createActorSystem(
         SparkEnv.executorActorSystemName,
         hostname, port, driverConf, new SecurityManager(driverConf))
