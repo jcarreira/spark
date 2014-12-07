@@ -55,6 +55,7 @@ class CoarseGrainedSchedulerBackend(scheduler: TaskSchedulerImpl, val actorSyste
   // is equal to at least this value, that is double between 0 and 1.
   var minRegisteredRatio =
     math.min(1, conf.getDouble("spark.scheduler.minRegisteredResourcesRatio", 0))
+  var usingSchedulerActor = conf.getBoolean("spark.scheduler.decentralized", false)
   // Submit tasks after maxRegisteredWaitingTime milliseconds
   // if minRegisteredRatio has not yet been reached
   val maxRegisteredWaitingTime =
@@ -86,14 +87,18 @@ class CoarseGrainedSchedulerBackend(scheduler: TaskSchedulerImpl, val actorSyste
       context.system.scheduler.schedule(0.millis, reviveInterval.millis, self, ReviveOffers)
 
       // create actor
-      schedulerActor = actorSystem.actorSelection("akka.tcp://server@f16:8338/user/server")
+      if (usingSchedulerActor) {
+        schedulerActor = actorSystem.actorSelection("akka.tcp://server@f16:8338/user/server")
 
-      // check that it is not null
-      if (schedulerActor != null) println ("schedulerActor not null");
-      else println("schedulerActor is null");
+        // check that it is not null
+        if (schedulerActor != null) println ("schedulerActor not null");
+        else println("schedulerActor is null");
 
-      // inform scheduler
-      schedulerActor ! "CoarseGrainedSchedulerBackend actor create";
+        // inform scheduler
+        schedulerActor ! "CoarseGrainedSchedulerBackend actor create";
+        // hopefully this allows the executors to connect with the dec. scheduler
+        //Thread.sleep(4000); 
+      }
     }
 
     def receiveWithLogging = {
@@ -210,11 +215,16 @@ class CoarseGrainedSchedulerBackend(scheduler: TaskSchedulerImpl, val actorSyste
           executorData.freeCores -= scheduler.CPUS_PER_TASK
 
           // no need to send to this scheduler now
-          //executorData.executorActor ! LaunchTask(new SerializableBuffer(serializedTask))
-          
-          // send to our scheduler instead
-          schedulerActor ! LaunchTaskDecentralized(task.executorId.toString, 
+          //executorActor(task.executorId) ! "Heartbeat";
+          logInfo(s"CoarseGrainedSchedulerBackend: " + 
+                  s"Scheduling task at ${(System.currentTimeMillis)}")
+          if (!usingSchedulerActor) {
+            executorData.executorActor ! LaunchTask(new SerializableBuffer(serializedTask))
+          } else {
+            // send to our scheduler instead
+            schedulerActor ! LaunchTaskDecentralized(task.executorId.toString, 
                          new SerializableBuffer(serializedTask))
+          }
                             
           // We should coalesce tasks here
         }
