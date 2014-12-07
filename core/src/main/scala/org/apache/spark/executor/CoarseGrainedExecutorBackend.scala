@@ -44,6 +44,9 @@ private[spark] class CoarseGrainedExecutorBackend(
 
   Utils.checkHostPort(hostPort, "Expected hostport")
 
+  val conf = new SparkConf
+  var usingSchedulerActor = conf.getBoolean("spark.scheduler.decentralized", false)
+
   var executor: Executor = null
   var driver: ActorSelection = null
   
@@ -53,16 +56,22 @@ private[spark] class CoarseGrainedExecutorBackend(
   override def preStart() {
     logInfo("Connecting to driver: " + driverUrl)
     driver = context.actorSelection(driverUrl)
-
-    driver ! RegisterExecutor(executorId, hostPort, cores)
-    context.system.eventStream.subscribe(self, classOf[RemotingLifecycleEvent])
-    
     // create actor
     // scheduler address should be dynamic
     // we should have more schedulers
-    schedulerActor = context.actorSelection("akka.tcp://server@f16:8338/user/server")
+
+    if (usingSchedulerActor) {
+      schedulerActor = context.actorSelection("akka.tcp://server@f16:8338/user/server")
+    }
+
+    context.system.eventStream.subscribe(self, classOf[RemotingLifecycleEvent])
+    driver ! RegisterExecutor(executorId, hostPort, cores)
     // register this executor
-    schedulerActor ! RegisterExecutorScheduler(executorId, "dont use this")
+
+    if (usingSchedulerActor) {
+      schedulerActor ! RegisterExecutorScheduler(executorId, "dont use this")
+    }
+    
   }
 
   override def receiveWithLogging = {
@@ -114,6 +123,8 @@ private[spark] class CoarseGrainedExecutorBackend(
 private[spark] object CoarseGrainedExecutorBackend extends Logging {
 
   private var schedulerActor: ActorSelection = null
+  val conf = new SparkConf
+  var usingSchedulerActor = conf.getBoolean("spark.scheduler.decentralized", false)
 
   private def run(
       driverUrl: String,
@@ -131,7 +142,8 @@ private[spark] object CoarseGrainedExecutorBackend extends Logging {
 
       // Bootstrap to fetch the driver's Spark properties.
       val executorConf = new SparkConf
-      val port = executorConf.getInt("spark.executor.port", 0)
+      //val port = executorConf.getInt("spark.executor.port", 0)
+      val port = executorConf.getInt("spark.executor.port", 6666)
       val (fetcher, _) = AkkaUtils.createActorSystem(
         "driverPropsFetcher", hostname, port, executorConf, new SecurityManager(executorConf))
       val driver = fetcher.actorSelection(driverUrl)
@@ -144,10 +156,13 @@ private[spark] object CoarseGrainedExecutorBackend extends Logging {
       // Create a new ActorSystem using driver's Spark properties to run the backend.
       val driverConf = new SparkConf().setAll(props)
 
-      // create actor
-      schedulerActor = fetcher.actorSelection("akka.tcp://server@f16:8338/user/server");
-      // send akka config to scheduler
-      schedulerActor ! DriverConfMessage(props);
+      if (usingSchedulerActor) {
+        // create actor
+        schedulerActor = fetcher.actorSelection("akka.tcp://server@f16:8338/user/server");
+        // send akka config to scheduler
+        schedulerActor ! DriverConfMessage(props);
+        Thread.sleep(3000);
+      }
 
       val (actorSystem, boundPort) = AkkaUtils.createActorSystem(
         SparkEnv.executorActorSystemName,
