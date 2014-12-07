@@ -104,72 +104,85 @@ class JobScheduler(val ssc: StreamingContext) extends Logging {
     if (jobSet.jobs.isEmpty) {
       logInfo("No jobs added for time " + jobSet.time)
     } else {
-      jobSets.put(jobSet.time, jobSet)
-      jobSet.jobs.foreach(job => jobExecutor.execute(new JobHandler(job)))
-      logInfo("Added jobs for time " + jobSet.time)
+      val now = System.currentTimeMillis
+      val timeBlockSeq = jobSet.receivedBlockInfo
+
+      timeBlockSeq.foreach( it => {
+          it._2.foreach(it2 => {
+             val timeBlock = it2.timestampMs
+             logInfo(s"submitJobSet now: $now time_block: $timeBlock")
+      })})
+
+
+      //val timeBlock = timeBlockSeq.head._2.head.timestampMs
+
+      //logInfo(s"submitJobSet now: $now time_block: $timeBlock")
+          jobSets.put(jobSet.time, jobSet)
+          jobSet.jobs.foreach(job => jobExecutor.execute(new JobHandler(job)))
+          logInfo("Added jobs for time " + jobSet.time)
     }
   }
 
   def getPendingTimes(): Seq[Time] = {
-    jobSets.keySet.toSeq
+      jobSets.keySet.toSeq
   }
 
   def reportError(msg: String, e: Throwable) {
-    eventActor ! ErrorReported(msg, e)
+      eventActor ! ErrorReported(msg, e)
   }
 
   private def processEvent(event: JobSchedulerEvent) {
-    try {
-      event match {
-        case JobStarted(job) => handleJobStart(job)
-        case JobCompleted(job) => handleJobCompletion(job)
-        case ErrorReported(m, e) => handleError(m, e)
+      try {
+          event match {
+              case JobStarted(job) => handleJobStart(job)
+                  case JobCompleted(job) => handleJobCompletion(job)
+                  case ErrorReported(m, e) => handleError(m, e)
+          }
+      } catch {
+          case e: Throwable =>
+                  reportError("Error in job scheduler", e)
       }
-    } catch {
-      case e: Throwable =>
-        reportError("Error in job scheduler", e)
-    }
   }
 
   private def handleJobStart(job: Job) {
-    val jobSet = jobSets.get(job.time)
-    if (!jobSet.hasStarted) {
-      listenerBus.post(StreamingListenerBatchStarted(jobSet.toBatchInfo))
-    }
-    jobSet.handleJobStart(job)
-    logInfo("Starting job " + job.id + " from job set of time " + jobSet.time)
+      val jobSet = jobSets.get(job.time)
+          if (!jobSet.hasStarted) {
+              listenerBus.post(StreamingListenerBatchStarted(jobSet.toBatchInfo))
+          }
+      jobSet.handleJobStart(job)
+          logInfo("Starting job " + job.id + " from job set of time " + jobSet.time)
   }
 
   private def handleJobCompletion(job: Job) {
-    job.result match {
-      case Success(_) =>
-        val jobSet = jobSets.get(job.time)
-        jobSet.handleJobCompletion(job)
-        logInfo("Finished job " + job.id + " from job set of time " + jobSet.time)
-        if (jobSet.hasCompleted) {
-          jobSets.remove(jobSet.time)
-          jobGenerator.onBatchCompletion(jobSet.time)
-          logInfo("Total delay: %.3f s for time %s (execution: %.3f s)".format(
-            jobSet.totalDelay / 1000.0, jobSet.time.toString,
-            jobSet.processingDelay / 1000.0
-          ))
-          listenerBus.post(StreamingListenerBatchCompleted(jobSet.toBatchInfo))
-        }
-      case Failure(e) =>
-        reportError("Error running job " + job, e)
-    }
+      job.result match {
+          case Success(_) =>
+              val jobSet = jobSets.get(job.time)
+              jobSet.handleJobCompletion(job)
+              logInfo("Finished job " + job.id + " from job set of time " + jobSet.time)
+              if (jobSet.hasCompleted) {
+                  jobSets.remove(jobSet.time)
+                      jobGenerator.onBatchCompletion(jobSet.time)
+                      logInfo("Total delay: %.3f s for time %s (execution: %.3f s)".format(
+                                  jobSet.totalDelay / 1000.0, jobSet.time.toString,
+                                  jobSet.processingDelay / 1000.0
+                                  ))
+                      listenerBus.post(StreamingListenerBatchCompleted(jobSet.toBatchInfo))
+              }
+          case Failure(e) =>
+              reportError("Error running job " + job, e)
+      }
   }
 
   private def handleError(msg: String, e: Throwable) {
-    logError(msg, e)
-    ssc.waiter.notifyError(e)
+      logError(msg, e)
+          ssc.waiter.notifyError(e)
   }
 
   private class JobHandler(job: Job) extends Runnable {
-    def run() {
-      eventActor ! JobStarted(job)
-      job.run()
-      eventActor ! JobCompleted(job)
-    }
+      def run() {
+          eventActor ! JobStarted(job)
+              job.run()
+              eventActor ! JobCompleted(job)
+      }
   }
 }

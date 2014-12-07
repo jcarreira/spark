@@ -128,15 +128,35 @@ private[streaming] class BlockGenerator(
   /** Change the buffer to which single records are added to. */
   private def updateCurrentBuffer(time: Long): Unit = synchronized {
     try {
+      val t1 = System.currentTimeMillis
+
       val newBlockBuffer = currentBuffer
       currentBuffer = new ArrayBuffer[Any]
+
+      //newBlockBuffer match {
+      //    case array:ArrayBuffer[String] => {
+      //      val first = array.head
+      //      val last = array.tail
+      //      val head_record = first.substring(0, 13)
+      //      val tail_record = last.substring(last.length - 13, last.length)
+      //      logInfo(s"$head_record $tail_record ${(System.currentTimeMillis)}")
+      //    }
+      //}
+
       if (newBlockBuffer.size > 0) {
         val blockId = StreamBlockId(receiverId, time - blockInterval)
         val newBlock = new Block(blockId, newBlockBuffer)
         listener.onGenerateBlock(blockId)
         blocksForPushing.put(newBlock)  // put is blocking when queue is full
-        logDebug("Last element in " + blockId + " is " + newBlockBuffer.last)
+
+        newBlockBuffer.last match {
+            case s:String =>
+        }
+
+        logInfo("Last element in " + blockId + " is " + newBlockBuffer.last)
       }
+      val t2 = System.currentTimeMillis
+      logInfo(s"updateCurrentBuffer t1: $t1 t2: $t2")
     } catch {
       case ie: InterruptedException =>
         logInfo("Block updating timer thread was interrupted")
@@ -150,7 +170,9 @@ private[streaming] class BlockGenerator(
     logInfo("Started block pushing thread")
     try {
       while(!stopped) {
-        Option(blocksForPushing.poll(100, TimeUnit.MILLISECONDS)) match {
+        val size = blocksForPushing.size()
+        logInfo(s"blocksForPushing $size ${(System.currentTimeMillis)}")
+        Option(blocksForPushing.poll(10, TimeUnit.MILLISECONDS)) match {
           case Some(block) => pushBlock(block)
           case None =>
         }

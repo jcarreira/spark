@@ -44,6 +44,9 @@ class RemoteActor(hash : HashMap[Int, ActorRef]) extends Actor {
      var sparkActorSystem: ActorSystem = null;
      var boundPort: Int = 0;
      var seen: Boolean = false;
+     var beginTime = System.nanoTime()
+     var counter: Int = 0;
+     var printCounter: Int = 0
 
      //val clientSystem = ActorSystem("client", ConfigFactory.load(ConfigFactory.parseString("""
      //  akka {
@@ -85,16 +88,26 @@ class RemoteActor(hash : HashMap[Int, ActorRef]) extends Actor {
               sender ! "Executor, this is the scheduler";
               hash += (msg.executorId.toInt -> sender);
     case msg: LaunchTaskDecentralized =>
-              println("Received LaunchTaskDecentralized (" + msg.executorId + ", task)");
+              //println("Received LaunchTaskDecentralized (" + msg.executorId + ", task)");
               //val actor = hash(min(1,msg.executorId.toInt + 1))
               if (hash.size > 0) {
                 val actor = hash(msg.executorId.toInt);
-                println(s"Sending task to executor " + msg.executorId)
+                printCounter += 1;
+                if (printCounter % 100 == 0) {
+                  println(s"Sending task to executor " + msg.executorId)
+                }
                 actor ! LaunchTask(msg.data)
-                println("Task sent")
+                //println("Task sent")
               } else {
                 println("No executors in Hash")
               }
+              val elapsedMs = (System.nanoTime() - beginTime) / 1000000;
+              if (elapsedMs > 1000) {
+                println(s">>>>>>>>>>>>>>>>>>>Processed $counter last sec<<<<<<<<<<<<<<<<<<<<")
+                counter = 0;
+                beginTime = System.nanoTime()
+              }
+              counter+=1
     case msg: String =>
         println(s"RemoteActor received string '$msg'")
     case jobSet: JobSet =>

@@ -20,6 +20,7 @@ package org.apache.spark.streaming.receiver
 import java.nio.ByteBuffer
 import java.util.concurrent.atomic.AtomicLong
 
+import scala.reflect.ClassTag
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.Await
 
@@ -108,6 +109,17 @@ private[streaming] class ReceiverSupervisorImpl(
     }
 
     def onPushBlock(blockId: StreamBlockId, arrayBuffer: ArrayBuffer[_]) {
+      //val now = System.currentTimeMillis
+      //logInfo(s"onPushBlock now: $now")
+
+      //ArrayBuffer match {
+      //  case arrayBuffer: ArrayBuffer[String] => {
+      //    val str = arrayBuffer.head
+      //    logInfo(s"onPushBlock is String: $str!!")
+      //  }
+      //  case _ => logInfo("onPushBlock is unknown!!")
+      //}
+
       pushArrayBuffer(arrayBuffer, None, Some(blockId))
     }
   }, streamId, env.conf)
@@ -144,58 +156,102 @@ private[streaming] class ReceiverSupervisorImpl(
     pushAndReportBlock(ByteBufferBlock(bytes), metadataOption, blockIdOption)
   }
 
+  def f[T](v: T)(implicit ev: ClassTag[T]) = ev.toString
   /** Store block and report it to driver */
   def pushAndReportBlock(
       receivedBlock: ReceivedBlock,
       metadataOption: Option[Any],
       blockIdOption: Option[StreamBlockId]
     ) {
+    val time = System.currentTimeMillis
     val blockId = blockIdOption.getOrElse(nextBlockId)
+    var last_record = ""
+    var head_record = ""
+
     val numRecords = receivedBlock match {
-      case ArrayBufferBlock(arrayBuffer) => arrayBuffer.size
+      case ArrayBufferBlock(arrayBuffer) => {
+          arrayBuffer match {
+              case array:ArrayBuffer[String] => {
+                val last = array.last;
+                val head = array.head;
+
+                head_record = head.substring(0, 13)
+                last_record = last.substring(last.length - 13, last.length)
+                //last_record = last
+              }
+              arrayBuffer.size
+         }
+      }
       case _ => -1
     }
 
-    val time = System.currentTimeMillis
     val blockStoreResult = receivedBlockHandler.storeBlock(blockId, receivedBlock)
-    logDebug(s"Pushed block $blockId in ${(System.currentTimeMillis - time)} ms")
 
-    val blockInfo = ReceivedBlockInfo(streamId, numRecords, blockStoreResult)
+    //logInfo(s"ReceiverSupervisorImpl - block reported at $time")
+
+    //val array = receivedBlock match {
+    //    case ArrayBufferBlock(arrayBuffer) => arrayBuffer
+    //}   
+    ////val last = array.last
+    //
+    //logInfo("ReceiverSupervisorImpl last type: " + f(array.last))    
+
+    //val valueBytes = (array.last match {
+    //          case Some(x:Array[Byte]) => logInfo("ReceiverSupervisorImpl is Array[byte]")
+    //          case Some(x:ByteBuffer) => logInfo("ReceiverSupervisorImpl is ByteBuffer")
+    //          case Some(x:Array[ByteBuffer]) => 
+    //                 logInfo("ReceiverSupervisorImpl is Array[ByteBuffer")
+    //          case Some(x:String) => logInfo("ReceiverSupervisorImpl is String")
+    //            case _ => logInfo("ReceiverSupervisorImpl is unknown")
+    //            })
+    //val valueStr = new String(valueBytes)
+    //val value = -1
+    //logInfo(s"ReceiverSupervisorImpl - Block generated at $value and reported at $time")
+
+    val last_record_long = last_record.toLong
+    logInfo(s"ReceivedBlockInfo last record: $last_record $last_record_long")
+                
+    logInfo(s"pushAndReportBlock: Storing arraybuffer $head_record " +
+            s"$last_record ${(System.currentTimeMillis)}")
+
+    val blockInfo = ReceivedBlockInfo(streamId, numRecords, 
+                 blockStoreResult, last_record.toLong)
     val future = trackerActor.ask(AddBlock(blockInfo))(askTimeout)
-    Await.result(future, askTimeout)
-    logDebug(s"Reported block $blockId")
+        //Await.result(future, askTimeout)
+    //    logDebug(s"Reported block $blockId")
+    logInfo(s"Pushed block $blockId in ${(System.currentTimeMillis - time)} ms")
   }
 
   /** Report error to the receiver tracker */
   def reportError(message: String, error: Throwable) {
-    val errorString = Option(error).map(Throwables.getStackTraceAsString).getOrElse("")
-    trackerActor ! ReportError(streamId, message, errorString)
-    logWarning("Reported error " + message + " - " + error)
+      val errorString = Option(error).map(Throwables.getStackTraceAsString).getOrElse("")
+          trackerActor ! ReportError(streamId, message, errorString)
+          logWarning("Reported error " + message + " - " + error)
   }
 
   override protected def onStart() {
-    blockGenerator.start()
+      blockGenerator.start()
   }
 
   override protected def onStop(message: String, error: Option[Throwable]) {
-    blockGenerator.stop()
-    env.actorSystem.stop(actor)
+      blockGenerator.stop()
+          env.actorSystem.stop(actor)
   }
 
   override protected def onReceiverStart() {
-    val msg = RegisterReceiver(
-      streamId, receiver.getClass.getSimpleName, Utils.localHostName(), actor)
-    val future = trackerActor.ask(msg)(askTimeout)
-    Await.result(future, askTimeout)
+      val msg = RegisterReceiver(
+              streamId, receiver.getClass.getSimpleName, Utils.localHostName(), actor)
+          val future = trackerActor.ask(msg)(askTimeout)
+          Await.result(future, askTimeout)
   }
 
   override protected def onReceiverStop(message: String, error: Option[Throwable]) {
-    logInfo("Deregistering receiver " + streamId)
-    val errorString = error.map(Throwables.getStackTraceAsString).getOrElse("")
-    val future = trackerActor.ask(
-      DeregisterReceiver(streamId, message, errorString))(askTimeout)
-    Await.result(future, askTimeout)
-    logInfo("Stopped receiver " + streamId)
+      logInfo("Deregistering receiver " + streamId)
+          val errorString = error.map(Throwables.getStackTraceAsString).getOrElse("")
+          val future = trackerActor.ask(
+                  DeregisterReceiver(streamId, message, errorString))(askTimeout)
+          Await.result(future, askTimeout)
+          logInfo("Stopped receiver " + streamId)
   }
 
   /** Generate new block ID */

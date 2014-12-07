@@ -19,17 +19,23 @@ package org.apache.spark.streaming.scheduler
 
 import org.apache.spark.streaming.Time
 import scala.util.Try
+import org.apache.spark.Logging
 
 /**
  * Class representing a Spark computation. It may contain multiple Spark jobs.
  */
 private[streaming]
-class Job(val time: Time, func: () => _) {
+class Job(val time: Time, func: () => _) extends Logging {
   var id: String = _
   var result: Try[_] = null
+  var timeOfBlockGeneration: Long = -1
 
   def run() {
+    var now = System.currentTimeMillis
+    logInfo(s"Running job t1: $timeOfBlockGeneration now: $now")
     result = Try(func())
+    now = System.currentTimeMillis
+    logInfo(s"Ran job t1: $timeOfBlockGeneration now: $now diff: ${(now-timeOfBlockGeneration)}")
   }
 
   def setId(number: Int) {

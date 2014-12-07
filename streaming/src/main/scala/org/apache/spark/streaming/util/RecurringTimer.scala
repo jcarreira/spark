@@ -91,12 +91,30 @@ class RecurringTimer(clock: Clock, period: Long, callback: (Long) => Unit, name:
    */
   private def loop() {
     try {
+      var begin = System.nanoTime()
       while (!stopped) {
         clock.waitTillTime(nextTime)
+        
+        var end = System.nanoTime()
+        val elapsed_us = (end-begin)/1000;
+        logInfo(s"Elapsed_us: $elapsed_us. Calling at $end")
+        
+        begin = System.nanoTime()
+        val begin2 = System.currentTimeMillis
+
         callback(nextTime)
+
+        val callbackTime2 = (System.currentTimeMillis-begin2)/1000
+        logInfo(s"Callback_ms: $callbackTime2")
+
         prevTime = nextTime
         nextTime += period
-        logDebug("Callback for " + name + " called at time " + prevTime)
+
+        //val currentTime = clock.currentTime
+        //while (nextTime < currentTime) {
+        //  nextTime += period
+        //}
+        //logDebug("Callback for " + name + " called at time " + prevTime)
       }
     } catch {
       case e: InterruptedException =>

@@ -162,6 +162,9 @@ class ReceiverTracker(ssc: StreamingContext, skipReceiverLaunch: Boolean = false
 
   /** Add new blocks for the given stream */
   private def addBlock(receivedBlockInfo: ReceivedBlockInfo): Boolean = {
+    val time = System.currentTimeMillis
+    val blockTime = receivedBlockInfo.timestampMs
+    logInfo(s"ReceiverTracker: block pushed at $blockTime added at $time")
     receivedBlockTracker.addBlock(receivedBlockInfo)
   }
 

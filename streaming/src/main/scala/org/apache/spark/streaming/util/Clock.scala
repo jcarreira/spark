@@ -49,8 +49,8 @@ class SystemClock() extends Clock {
       if (waitTime <= 0) {
         return currentTime
       }
-      val sleepTime = math.min(waitTime, pollTime)
-      Thread.sleep(sleepTime)
+      //val sleepTime = math.min(waitTime, pollTime)
+      //Thread.sleep(sleepTime)
     }
     -1
   }

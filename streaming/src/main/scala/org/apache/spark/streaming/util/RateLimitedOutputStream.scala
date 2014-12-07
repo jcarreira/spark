@@ -25,7 +25,7 @@ import java.util.concurrent.TimeUnit._
 import org.apache.spark.Logging
 
 
-private[streaming]
+//private[streaming]
 class RateLimitedOutputStream(out: OutputStream, desiredBytesPerSec: Int)
   extends OutputStream
   with Logging {
@@ -62,6 +62,22 @@ class RateLimitedOutputStream(out: OutputStream, desiredBytesPerSec: Int)
 
   override def close() {
     out.close()
+  }
+
+  def haveToWait(): Boolean = {
+    val now = System.nanoTime
+    val elapsedNanosecs = math.max(now - lastSyncTime, 1)
+    val rate = bytesWrittenSinceSync.toDouble * 1000000000 / elapsedNanosecs
+    return (rate >= desiredBytesPerSec);
+  }
+
+  def timeToWait(): Long = {
+    val now = System.nanoTime
+    val elapsedNanosecs = math.max(now - lastSyncTime, 1)
+    val targetTimeInMillis = bytesWrittenSinceSync * 1000 / desiredBytesPerSec
+    val elapsedTimeInMillis = elapsedNanosecs / 1000000
+    val sleepTimeInMillis = targetTimeInMillis - elapsedTimeInMillis
+    return sleepTimeInMillis
   }
 
   @tailrec

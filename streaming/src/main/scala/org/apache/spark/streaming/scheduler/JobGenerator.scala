@@ -48,7 +48,13 @@ class JobGenerator(jobScheduler: JobScheduler) extends Logging {
   }
 
   private val timer = new RecurringTimer(clock, ssc.graph.batchDuration.milliseconds,
-    longTime => eventActor ! GenerateJobs(new Time(longTime)), "JobGenerator")
+          {
+            var beg2 = System.currentTimeMillis
+            longTime => eventActor ! GenerateJobs(new Time(longTime))
+            val end2 = System.currentTimeMillis
+            val elapsed2 = (end2 - beg2)
+            logInfo(s"RecurringCallback_ms elapsed $elapsed2 T1: $beg2 Now: $end2")
+          }, "JobGenerator")
 
   // This is marked lazy so that this is initialized after checkpoint duration has been set
   // in the context and the generator has been started.
@@ -222,12 +228,37 @@ class JobGenerator(jobScheduler: JobScheduler) extends Logging {
     // Update: This is probably redundant after threadlocal stuff in SparkEnv has been removed.
     SparkEnv.set(ssc.env)
     Try {
+      val time1 = System.currentTimeMillis
+      logInfo(s"GenerateJobs now: $time1")
       jobScheduler.receiverTracker.allocateBlocksToBatch(time) // allocate received blocks to batch
-      graph.generateJobs(time) // generate jobs using allocated block
+      val time2 = System.currentTimeMillis
+      logInfo(s"GenerateJobs now: $time2")
+      val ret = graph.generateJobs(time) // generate jobs using allocated block
+      val time3 = System.currentTimeMillis
+      logInfo(s"GenerateJobs now: $time3")
+      //val time3 = System.currentTimeMillis
+      //val dif1 = time2 - time1;
+      //val dif2 = time3 - time2;
+      //logInfo(s"GenerateJobs $dif1 $dif2")
+      ret
     } match {
       case Success(jobs) =>
         val receivedBlockInfos =
           jobScheduler.receiverTracker.getBlocksOfBatch(time).mapValues { _.toArray }
+        val now = System.currentTimeMillis
+        var timeOfGeneration:Long = 0
+
+        receivedBlockInfos.foreach(it => {
+                it._2.foreach(it2 => {
+                      val t1 = it2.timestampMs
+                      timeOfGeneration = t1
+                      logInfo(s"Submitting jobset. T1: $t1 Now: $now")
+                    })
+                })
+        //val t1 = receivedBlockInfos.head._2.head.timestampMs
+
+        //logInfo("Submitting jobset. T1: $t1 Now: $now")
+        jobs.foreach(job => job.timeOfBlockGeneration = timeOfGeneration)
         jobScheduler.submitJobSet(JobSet(time, jobs, receivedBlockInfos))
       case Failure(e) =>
         jobScheduler.reportError("Error generating jobs for time " + time, e)
