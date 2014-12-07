@@ -112,9 +112,19 @@ final private[streaming] class DStreamGraph extends Serializable with Logging {
 
   def generateJobs(time: Time): Seq[Job] = {
     logDebug("Generating jobs for time " + time)
+
+    val beg = System.currentTimeMillis
     val jobs = this.synchronized {
-      outputStreams.flatMap(outputStream => outputStream.generateJob(time))
+      val time1 = System.currentTimeMillis
+      val ret = outputStreams.flatMap(outputStream => outputStream.generateJob(time))
+      val time2 = System.currentTimeMillis
+      val dif = time2 - time1;
+      logInfo(s"GraphGenerate $dif")
+      ret
     }
+    val end = System.currentTimeMillis
+    val dif2 = end - beg;
+    logInfo(s"GraphGenerateAll $dif2")
     logDebug("Generated " + jobs.length + " jobs for time " + time)
     jobs
   }

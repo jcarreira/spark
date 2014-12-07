@@ -20,6 +20,7 @@ package org.apache.spark.streaming.dstream
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.storage.StorageLevel
 import org.apache.spark.util.NextIterator
+import org.apache.spark.SparkConf
 
 import scala.reflect.ClassTag
 
@@ -43,7 +44,7 @@ class SocketInputDStream[T: ClassTag](
 }
 
 private[streaming]
-class SocketReceiver[T: ClassTag](
+class SocketReceiver[T: ClassTag] (
     host: String,
     port: Int,
     bytesToObjects: InputStream => Iterator[T],
@@ -72,7 +73,22 @@ class SocketReceiver[T: ClassTag](
       logInfo("Connected to " + host + ":" + port)
       val iterator = bytesToObjects(socket.getInputStream())
       while(!isStopped && iterator.hasNext) {
-        store(iterator.next)
+        val now = System.currentTimeMillis
+        val value = iterator.next
+
+
+        var first = ""
+        var last = ""
+        value match {
+            case value:String => {
+                first = value.substring(0,13)
+                last = value.substring(value.length-13, value.length)
+            }
+        }
+        store(value)
+        val afterStore = System.currentTimeMillis
+        logInfo(s"SocketInputDStream received now: $now first: " +
+                s"$first last: $last storeTime: ${(afterStore - now)}")
       }
       logInfo("Stopped receiving")
       restart("Retrying connecting to " + host + ":" + port)
@@ -91,14 +107,17 @@ class SocketReceiver[T: ClassTag](
 }
 
 private[streaming]
-object SocketReceiver  {
+object SocketReceiver extends Logging {
+  //val conf = new SparkConf;
+  //val aggregationFactor = conf.getInt("spark.streaming.aggregationFactor", 0)
 
   /**
    * This methods translates the data from an inputstream (say, from a socket)
    * to '\n' delimited strings and returns an iterator to access the strings.
    */
   def bytesToLines(inputStream: InputStream): Iterator[String] = {
-    val dataInputStream = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"))
+    val dataInputStream = 
+        new BufferedReader(new InputStreamReader(inputStream, "UTF-8"))//, 10000000)
     new NextIterator[String] {
       protected override def getNext() = {
         val nextValue = dataInputStream.readLine()
@@ -113,4 +132,47 @@ object SocketReceiver  {
       }
     }
   }
+
+  object AllDone extends Exception { }
+  def bytesToLines2(inputStream: InputStream): Iterator[String] = {
+    val dataInputStream = 
+        new BufferedReader(new InputStreamReader(inputStream, "UTF-8"), 100000)
+    new NextIterator[String] {
+      protected override def getNext() = {
+        var nextValue = dataInputStream.readLine()
+
+        var time = System.currentTimeMillis
+        try {
+           var count = 1;
+           (1 to 10000).foreach( 
+                   it => {
+                     val new_value = dataInputStream.readLine() 
+                     if (new_value == null) {
+                        throw AllDone
+                     }
+                     nextValue += new_value
+                     if (count % 10 == 0 && System.currentTimeMillis - time > 5) {
+                       throw AllDone
+                     }
+                     count += 1
+                })
+        } catch {
+           case AllDone =>
+        }
+
+
+        logInfo(s"Received block. Took ${(System.currentTimeMillis - time)}")
+
+        if (nextValue == null) {
+          finished = true
+        }
+        nextValue
+      }
+
+      protected override def close() {
+        dataInputStream.close()
+      }
+    }
+  }
+
 }

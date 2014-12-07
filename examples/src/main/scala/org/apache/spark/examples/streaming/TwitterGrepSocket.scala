@@ -22,6 +22,7 @@ import StreamingContext._
 import org.apache.spark.SparkContext._
 import org.apache.spark.streaming.twitter._
 import org.apache.spark.SparkConf
+import org.apache.spark.storage.StorageLevel
 
 /**
  * Calculates popular hashtags (topics) over sliding 10 and 60 second windows from a Twitter
@@ -31,11 +32,11 @@ import org.apache.spark.SparkConf
  * Run this on your local machine as
  *
  */
-object TwitterGrep {
+object TwitterGrepSocket {
   def main(args: Array[String]) {
-    if (args.length < 4) {
-      System.err.println("Usage: TwitterGrep <consumer key> <consumer secret> " +
-        "<access token> <access token secret> <MillisecondsWindow> [<filters>]")
+    if (args.length < 5) {
+      System.err.println("Usage: TwitterGrepSocket <consumer key> <consumer secret> " +
+        "<access token> <access token secret> <MillisecondsWindow> <node> [<filters>]")
       System.exit(1)
     }
 
@@ -51,28 +52,26 @@ object TwitterGrep {
     System.setProperty("twitter4j.oauth.accessToken", accessToken)
     System.setProperty("twitter4j.oauth.accessTokenSecret", accessTokenSecret)
 
-    val sparkConf = new SparkConf().setAppName("TwitterGrep")
+    val sparkConf = new SparkConf().setAppName("TwitterGrepSocket")
     val ssc = new StreamingContext(sparkConf, Milliseconds(args(4).toInt))
 
-    val stream = ssc.socketTextStream("f1", 55555,
+    val node = args(5)
+    val stream = ssc.socketTextStream(node, 55555,
                             StorageLevel.MEMORY_ONLY_SER)
 
-    val englishTweets = stream.map(_.getText())
+    //val englishTweets = stream.map(_.getText())
     //val englishTweets = stream.map(_.getInReplyToScreenName())
-    englishTweets.filter( record => {
-       !( 
-         (record == "null") || 
-         (record == null) ||
-         (record contains "null")
-        )
-       //val some = Option(record)
-       //some match {
-       //  case Some(theValue) => true
-       //  case None           => false
-       //}
-    })
+    val finalTweets = stream.filter(_.contains("1337"))
+    //val finalTweets = stream.filter( record => {
+    //   !( 
+    //     (record == "null") || 
+    //     (record == null) ||
+    //     (record contains "null")
+    //    )
+    //})
 
-    englishTweets.print()
+    finalTweets.count()
+    finalTweets.print()
 
     ssc.start()
     ssc.awaitTermination()
