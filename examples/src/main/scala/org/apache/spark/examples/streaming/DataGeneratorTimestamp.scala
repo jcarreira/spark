@@ -53,18 +53,19 @@ object DataGeneratorTimestamp {
 
         while (true) {
 
-          if (out.haveToWait()) {
-            val toWait = out.timeToWait();
-            println("Sleeping ms: " + toWait)
-            Thread.sleep(toWait + 5)
-          }
+          //if (out.haveToWait()) {
+          //  val toWait = out.timeToWait();
+          //  println("Sleeping ms: " + toWait)
+          //  Thread.sleep(toWait + 5)
+          //}
 
-          val curTime = System.currentTimeMillis
-          var curTimeString = ""
-          (1 to 1000).foreach(id => curTimeString += curTime.toString + "\n")
+          val curTime = System.currentTimeMillis.toString + "\n"
+          var curTimeString = new StringBuilder
+          (1 to 100).foreach(id => curTimeString ++= curTime)
 
-          sentBytes += curTimeString.length
-          out.write(curTimeString.getBytes)
+          val sent = curTimeString.toString.getBytes
+          sentBytes += sent.length
+          out.write(sent)
 
           // a second passed?
           if (System.currentTimeMillis - timeBegin >= 1000) {

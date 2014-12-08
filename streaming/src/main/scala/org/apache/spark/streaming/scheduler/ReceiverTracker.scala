@@ -22,6 +22,7 @@ import scala.collection.mutable.{HashMap, SynchronizedMap}
 import scala.language.existentials
 
 import akka.actor._
+import java.io._
 
 import org.apache.spark.{Logging, SerializableWritable, SparkEnv, SparkException}
 import org.apache.spark.SparkContext._
@@ -66,6 +67,7 @@ class ReceiverTracker(ssc: StreamingContext, skipReceiverLaunch: Boolean = false
     ssc.scheduler.clock,
     Option(ssc.checkpointDir)
   )
+  private val out = new BufferedWriter(new PrintWriter(new FileWriter(new File("/tmp/spark_benchmark.txt"), true)))
   private val listenerBus = ssc.scheduler.listenerBus
 
   // actor is created when generator starts.
@@ -160,8 +162,20 @@ class ReceiverTracker(ssc: StreamingContext, skipReceiverLaunch: Boolean = false
     logError(s"Deregistered receiver for stream $streamId: $messageWithError")
   }
 
+  private var counter = 0
+
   /** Add new blocks for the given stream */
   private def addBlock(receivedBlockInfo: ReceivedBlockInfo): Boolean = {
+    val record = receivedBlockInfo.firstRecord
+    val record_time = record.substring(0,13).toLong
+    val now = System.currentTimeMillis
+
+    out.append(s"ReceiverTracker: $record $now ${(now - record_time)}\n")
+    counter+=1
+    if (counter % 1000 == 0) {
+        out.flush()
+    }
+
     receivedBlockTracker.addBlock(receivedBlockInfo)
   }
 

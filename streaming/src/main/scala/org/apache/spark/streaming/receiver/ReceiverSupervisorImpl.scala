@@ -160,7 +160,22 @@ private[streaming] class ReceiverSupervisorImpl(
     val blockStoreResult = receivedBlockHandler.storeBlock(blockId, receivedBlock)
     logDebug(s"Pushed block $blockId in ${(System.currentTimeMillis - time)} ms")
 
-    val blockInfo = ReceivedBlockInfo(streamId, numRecords, blockStoreResult)
+    var head_record = ""
+    receivedBlock match {
+      case ArrayBufferBlock(arrayBuffer) => {
+        arrayBuffer match {
+              case array:ArrayBuffer[String] => {
+                val record = array.head;
+
+                head_record = record
+                //head_record = record.substring(0, 13)
+              }
+      }
+    }
+    }
+
+    val blockInfo = ReceivedBlockInfo(streamId, numRecords, 
+            blockStoreResult, head_record, -1)
     val future = trackerActor.ask(AddBlock(blockInfo))(askTimeout)
     Await.result(future, askTimeout)
     logDebug(s"Reported block $blockId")

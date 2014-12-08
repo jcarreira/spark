@@ -23,6 +23,8 @@ import org.apache.spark.streaming.receiver.ReceivedBlockStoreResult
 private[streaming] case class ReceivedBlockInfo(
     streamId: Int,
     numRecords: Long,
-    blockStoreResult: ReceivedBlockStoreResult
+    blockStoreResult: ReceivedBlockStoreResult,
+    firstRecord: String = "",
+    timestampMs: Long = 0
   )
 

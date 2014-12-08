@@ -71,9 +71,36 @@ class SocketReceiver[T: ClassTag](
       socket = new Socket(host, port)
       logInfo("Connected to " + host + ":" + port)
       val iterator = bytesToObjects(socket.getInputStream())
+        
+      val out = new BufferedWriter(new PrintWriter(new FileWriter(new File("/tmp/spark_benchmark.txt"), true)))
+
+      var counter = 0
       while(!isStopped && iterator.hasNext) {
-        store(iterator.next)
+        val now = System.currentTimeMillis
+        val value = iterator.next
+
+        var record = ""
+        var id = ""
+        value match {
+            case value:String => {
+                record = value.substring(0,13)
+                id = value.substring(14,value.length-1)
+            }
+        }
+
+        val recordLong = record.toLong
+        val diff = now - recordLong
+
+        out.append(s"SocketInputDStream: $value ${(System.currentTimeMillis)}\n")
+
+        store(value)
+        counter+=1
+
+        if (counter % 1000 ==0)
+            out.flush()
       }
+      out.close()
+
       logInfo("Stopped receiving")
       restart("Retrying connecting to " + host + ":" + port)
     } catch {
