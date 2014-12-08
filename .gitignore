@@ -59,3 +59,5 @@ metastore/
 warehouse/
 TempStatsStore/
 sql/hive-thriftserver/test_warehouses
+
+sql/hive/*
