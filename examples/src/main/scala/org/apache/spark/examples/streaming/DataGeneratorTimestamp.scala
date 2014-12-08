@@ -53,11 +53,11 @@ object DataGeneratorTimestamp {
 
         while (true) {
 
-          if (out.haveToWait()) {
-            val toWait = out.timeToWait();
-            println("Sleeping ms: " + toWait)
-            Thread.sleep(toWait + 5)
-          }
+          //if (out.haveToWait()) {
+          //  val toWait = out.timeToWait();
+          //  println("Sleeping ms: " + toWait)
+          //  Thread.sleep(toWait + 5)
+          //}
 
           val curTime = System.currentTimeMillis
           var curTimeString = ""

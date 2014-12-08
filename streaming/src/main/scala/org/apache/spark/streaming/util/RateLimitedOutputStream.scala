@@ -25,7 +25,7 @@ import java.util.concurrent.TimeUnit._
 import org.apache.spark.Logging
 
 
-private[streaming]
+//private[streaming]
 class RateLimitedOutputStream(out: OutputStream, desiredBytesPerSec: Int)
   extends OutputStream
   with Logging {
