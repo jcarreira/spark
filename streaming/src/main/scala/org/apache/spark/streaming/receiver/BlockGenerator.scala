@@ -21,6 +21,7 @@ import java.util.concurrent.{ArrayBlockingQueue, TimeUnit}
 
 import scala.collection.mutable.ArrayBuffer
 
+import java.io._
 import org.apache.spark.{Logging, SparkConf}
 import org.apache.spark.storage.StreamBlockId
 import org.apache.spark.streaming.util.{RecurringTimer, SystemClock}
@@ -55,6 +56,7 @@ private[streaming] class BlockGenerator(
   private val blockQueueSize = conf.getInt("spark.streaming.blockQueueSize", 10)
   private val blocksForPushing = new ArrayBlockingQueue[Block](blockQueueSize)
   private val blockPushingThread = new Thread() { override def run() { keepPushingBlocks() } }
+  private val out = new BufferedWriter(new PrintWriter(new FileWriter(new File("/tmp/spark_benchmark.txt"), true)))
 
   @volatile private var currentBuffer = new ArrayBuffer[Any]
   @volatile private var stopped = false
@@ -85,6 +87,7 @@ private[streaming] class BlockGenerator(
     currentBuffer += data
   }
 
+  private var counter = 0
   /** Change the buffer to which single records are added to. */
   private def updateCurrentBuffer(time: Long): Unit = synchronized {
     try {
@@ -95,6 +98,18 @@ private[streaming] class BlockGenerator(
         val newBlock = new Block(blockId, newBlockBuffer)
         blocksForPushing.put(newBlock)  // put is blocking when queue is full
         logDebug("Last element in " + blockId + " is " + newBlockBuffer.last)
+
+         val stringBuffer = newBlockBuffer.asInstanceOf[ArrayBuffer[String]]
+         var first_record = ""
+         if (stringBuffer.size > 0) {
+           first_record = stringBuffer.head
+         }
+
+         out.append(s"BG: $first_record ${(System.currentTimeMillis)}\n")
+         counter+=1
+         if (counter % 1000 == 0) {
+             out.flush()
+          }
       }
     } catch {
       case ie: InterruptedException =>

@@ -27,13 +27,16 @@ import org.apache.spark.storage.StreamBlockId
 import org.apache.spark.streaming.{StreamingContext, Time}
 import org.apache.spark.streaming.receiver.{Receiver, ReceiverSupervisorImpl, StopReceiver}
 import org.apache.spark.util.AkkaUtils
+import java.io._
 
 /** Information about blocks received by the receiver */
 private[streaming] case class ReceivedBlockInfo(
     streamId: Int,
     blockId: StreamBlockId,
     numRecords: Long,
-    metadata: Any
+    metadata: Any,
+    firstRecord: String = "",
+    timestampMs: Long = 0
   )
 
 /**
@@ -61,6 +64,7 @@ private[streaming] case class DeregisterReceiver(streamId: Int, msg: String, err
 private[streaming]
 class ReceiverTracker(ssc: StreamingContext) extends Logging {
 
+  private val out = new BufferedWriter(new PrintWriter(new FileWriter(new File("/tmp/spark_benchmark.txt"), true)))
   val receiverInputStreams = ssc.graph.getReceiverInputStreams()
   val receiverInputStreamMap = Map(receiverInputStreams.map(x => (x.id, x)): _*)
   val receiverExecutor = new ReceiverLauncher()
@@ -149,11 +153,22 @@ class ReceiverTracker(ssc: StreamingContext) extends Logging {
     logError(s"Deregistered receiver for stream $streamId: $messageWithError")
   }
 
+  private var counter = 0
   /** Add new blocks for the given stream */
   def addBlocks(receivedBlockInfo: ReceivedBlockInfo) {
     getReceivedBlockInfoQueue(receivedBlockInfo.streamId) += receivedBlockInfo
-    logDebug("Stream " + receivedBlockInfo.streamId + " received new blocks: " +
-      receivedBlockInfo.blockId)
+
+    val record = receivedBlockInfo.firstRecord
+    //val record_time = record.substring(0,13).toLong
+    val now = System.currentTimeMillis
+    
+    out.append(s"RT: $record $now\n")
+    counter+=1
+    if (counter % 1000 == 0) {
+         out.flush()
+    }
+
+    logDebug("Stream " + receivedBlockInfo.streamId + " received new blocks: " + receivedBlockInfo.blockId)
   }
 
   /** Report error sent by a receiver */

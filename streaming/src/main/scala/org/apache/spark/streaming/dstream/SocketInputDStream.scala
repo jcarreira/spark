@@ -71,9 +71,34 @@ class SocketReceiver[T: ClassTag](
       socket = new Socket(host, port)
       logInfo("Connected to " + host + ":" + port)
       val iterator = bytesToObjects(socket.getInputStream())
+      val out = new BufferedWriter(new PrintWriter(new FileWriter(new File("/tmp/spark_benchmark.txt"), true)))
+      var counter = 0
       while(!isStopped && iterator.hasNext) {
-        store(iterator.next)
+          val now = System.currentTimeMillis
+          val value = iterator.next
+          var record = ""
+          var id = ""
+          //value match {
+
+          //  case value:String => {
+          //    record = value.substring(0,13)
+          //    //id = value.substring(14,value.length-1)
+          //        
+          //  }
+          //}
+        //val recordLong = record.toLong
+        //val diff = now - recordLong
+
+        counter += 1
+        out.append(s"SIDS: $value ${(System.currentTimeMillis)}\n")
+        if (counter % 10000 == 0) {
+          //logInfo(s"SocketInputDStream: $value ${(System.currentTimeMillis)}")
+          out.flush()
+        }
+        store(value)
       }
+
+      out.close()
       logInfo("Stopped receiving")
       restart("Retrying connecting to " + host + ":" + port)
     } catch {
@@ -101,7 +126,12 @@ object SocketReceiver  {
     val dataInputStream = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"))
     new NextIterator[String] {
       protected override def getNext() = {
-        val nextValue = dataInputStream.readLine()
+        var nextValue = dataInputStream.readLine()
+
+        (1 to 100).foreach(_ =>
+            nextValue += dataInputStream.readLine() + "\n"
+        )
+
         if (nextValue == null) {
           finished = true
         }
