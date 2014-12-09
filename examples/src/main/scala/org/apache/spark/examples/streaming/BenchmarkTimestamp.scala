@@ -47,7 +47,7 @@ object BenchmarkTimestamp {
     val blockInterval = if (args.length == 5) args(4) else None
     val sparkConf = new SparkConf()
     sparkConf.setAppName("BenchMarkTimestamp")
-    sparkConf.set("spark.eventLog.enabled","true")
+    //sparkConf.set("spark.eventLog.enabled","true")
     sparkConf.set("spark.executor.extraJavaOptions", " -XX:+UseCompressedOops -XX:+UseConcMarkSweepGC -XX:+AggressiveOpts -XX:FreqInlineSize=300 -XX:MaxInlineSize=300 ")
     if (blockInterval != None) sparkConf.set("spark.streaming.blockInterval", blockInterval.toString)
     if (sparkConf.getOption("spark.master") == None) {
@@ -59,15 +59,15 @@ object BenchmarkTimestamp {
     val ssc = new StreamingContext(sparkConf, Duration(batchMillis))
 
     val times = ssc.socketTextStream(host, port, StorageLevel.MEMORY_ONLY_SER)
-    val latencies = times.map{times =>
-      var result = "" 
-      times.split("\n").foreach( time => {
+    val latencies = times.map{time =>
+      //var result = "" 
+      //times.split("\n").foreach( time => {
          val receiveTime = System.currentTimeMillis;
          val sendTime = time.substring(0,13).toLong;
          val latency = receiveTime - sendTime;
-         result += s"time: $time $receiveTime $latency\n"
-      })
-      result
+         s"time: $time $receiveTime $latency"
+      //})
+      //result
     }
     //latencies.saveAsTextFiles("latencies")
     latencies.print()

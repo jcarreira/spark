@@ -128,9 +128,9 @@ object SocketReceiver  {
       protected override def getNext() = {
         var nextValue = dataInputStream.readLine()
 
-        (1 to 100).foreach(_ =>
-            nextValue += dataInputStream.readLine() + "\n"
-        )
+        //(1 to 100).foreach(_ =>
+        //    nextValue += dataInputStream.readLine() + "\n"
+        //)
 
         if (nextValue == null) {
           finished = true

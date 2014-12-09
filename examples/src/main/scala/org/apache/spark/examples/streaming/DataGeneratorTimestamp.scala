@@ -33,7 +33,7 @@ object DataGeneratorTimestamp {
           val curTimeString = System.currentTimeMillis.toString
           val sb = new StringBuilder
 
-          for (i <- 0 until 10) {
+          for (i <- 0 until 100) {
               sb ++= curTimeString + "-" + counter.toString + "\n"
               counter += 1
           }
