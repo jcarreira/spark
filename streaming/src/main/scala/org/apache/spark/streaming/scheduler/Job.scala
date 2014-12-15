@@ -20,6 +20,7 @@ package org.apache.spark.streaming.scheduler
 import org.apache.spark.streaming.Time
 import scala.util.Try
 import org.apache.spark.Logging
+import java.io._
 
 /**
  * Class representing a Spark computation. It may contain multiple Spark jobs.
@@ -30,12 +31,16 @@ class Job(val time: Time, func: () => _) extends Logging {
   var result: Try[_] = null
   var timeOfBlockGeneration: Long = -1
 
+  // This is the timestamp-id of a record
+  var firstRecord: String = null
+
   def run() {
-    var now = System.currentTimeMillis
-    logInfo(s"Running job t1: $timeOfBlockGeneration now: $now")
+    val out = new BufferedWriter(new PrintWriter(new FileWriter(new File("/tmp/spark_benchmark.txt"), true)))
+    out.append(s"Job::run-before $firstRecord ${(System.currentTimeMillis)}\n")
+    out.flush()
     result = Try(func())
-    now = System.currentTimeMillis
-    logInfo(s"Ran job t1: $timeOfBlockGeneration now: $now diff: ${(now-timeOfBlockGeneration)}")
+    out.append(s"Job::run-after $firstRecord ${(System.currentTimeMillis)}\n")
+    out.close()
   }
 
   def setId(number: Int) {

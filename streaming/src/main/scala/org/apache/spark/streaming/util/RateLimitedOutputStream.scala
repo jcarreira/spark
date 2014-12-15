@@ -89,6 +89,7 @@ class RateLimitedOutputStream(out: OutputStream, desiredBytesPerSec: Int)
       // It's okay to write; just update some variables and return
       bytesWrittenSinceSync += numBytes
       if (now > lastSyncTime + SYNC_INTERVAL) {
+        println(s"Rate = $rate bytes/sec") 
         // Sync interval has passed; let's resync
         lastSyncTime = now
         bytesWrittenSinceSync = numBytes

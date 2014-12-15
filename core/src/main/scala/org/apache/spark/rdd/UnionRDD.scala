@@ -60,7 +60,8 @@ private[spark] class UnionPartition[T: ClassTag](
 class UnionRDD[T: ClassTag](
     sc: SparkContext,
     var rdds: Seq[RDD[T]])
-  extends RDD[T](sc, Nil) {  // Nil since we implement getDependencies
+  //extends RDD[T](sc, Nil) {  // Nil since we implement getDependencies
+  extends RDD[T](sc, rdds.head.firstRecord) {  // Nil since we implement getDependencies
 
   override def getPartitions: Array[Partition] = {
     val array = new Array[Partition](rdds.map(_.partitions.size).sum)

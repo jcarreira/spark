@@ -61,11 +61,9 @@ object BenchmarkTimestamp {
 
     val latencies = times.map{time =>
       val receiveTime = System.currentTimeMillis;
-      //val sendTime = time.toLong;
-      //val latency = receiveTime - sendTime;
-      //s"$sendTime $receiveTime $latency"
-      //s"$time $receiveTime"
-      "0"
+      val sendTime = time.substring(0,13).toLong;
+      val latency = receiveTime - sendTime;
+      s"$time $receiveTime $latency"
     }
 
     latencies.print()

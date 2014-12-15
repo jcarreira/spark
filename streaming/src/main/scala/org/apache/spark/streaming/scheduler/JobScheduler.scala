@@ -23,6 +23,7 @@ import java.util.concurrent.{TimeUnit, ConcurrentHashMap, Executors}
 import akka.actor.{ActorRef, Actor, Props}
 import org.apache.spark.{SparkException, Logging, SparkEnv}
 import org.apache.spark.streaming._
+import java.io._
 
 
 private[scheduler] sealed trait JobSchedulerEvent
@@ -100,26 +101,30 @@ class JobScheduler(val ssc: StreamingContext) extends Logging {
     logInfo("Stopped JobScheduler")
   }
 
+  private var counter = 0
   def submitJobSet(jobSet: JobSet) {
     if (jobSet.jobs.isEmpty) {
       logInfo("No jobs added for time " + jobSet.time)
     } else {
       val now = System.currentTimeMillis
       val timeBlockSeq = jobSet.receivedBlockInfo
-
-      timeBlockSeq.foreach( it => {
-          it._2.foreach(it2 => {
-             val timeBlock = it2.timestampMs
-             logInfo(s"submitJobSet now: $now time_block: $timeBlock")
-      })})
-
-
-      //val timeBlock = timeBlockSeq.head._2.head.timestampMs
-
-      //logInfo(s"submitJobSet now: $now time_block: $timeBlock")
-          jobSets.put(jobSet.time, jobSet)
-          jobSet.jobs.foreach(job => jobExecutor.execute(new JobHandler(job)))
-          logInfo("Added jobs for time " + jobSet.time)
+      
+      var firstRecord = ""
+      if (timeBlockSeq.size > 0) {
+          if (timeBlockSeq.head._2.size > 0) {
+              firstRecord = timeBlockSeq.head._2.head.firstRecord
+          }
+      }
+    
+      val out = new BufferedWriter(new PrintWriter(new FileWriter(new File("/tmp/spark_benchmark.txt"), true)))
+      val str = s"JobScheduler: $firstRecord ${(System.currentTimeMillis)}\n"
+      out.append(str)
+      out.close()
+        
+      jobSets.put(jobSet.time, jobSet)
+      jobSet.jobs.foreach(job => job.firstRecord = "fR: " + firstRecord)
+      jobSet.jobs.foreach(job => jobExecutor.execute(new JobHandler(job)))
+      logInfo("Added jobs for time " + jobSet.time)
     }
   }
 

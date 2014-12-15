@@ -27,6 +27,8 @@ import org.apache.spark.{Logging, SerializableWritable, SparkEnv, SparkException
 import org.apache.spark.SparkContext._
 import org.apache.spark.streaming.{StreamingContext, Time}
 import org.apache.spark.streaming.receiver.{Receiver, ReceiverSupervisorImpl, StopReceiver}
+import org.apache.spark.util.AkkaUtils
+import java.io._
 
 /**
  * Messages used by the NetworkReceiver and the ReceiverTracker to communicate
@@ -160,12 +162,18 @@ class ReceiverTracker(ssc: StreamingContext, skipReceiverLaunch: Boolean = false
     logError(s"Deregistered receiver for stream $streamId: $messageWithError")
   }
 
+  private var counter = 0
   /** Add new blocks for the given stream */
   private def addBlock(receivedBlockInfo: ReceivedBlockInfo): Boolean = {
     val time = System.currentTimeMillis
-    val blockTime = receivedBlockInfo.timestampMs
-    logInfo(s"ReceiverTracker: block pushed at $blockTime added at $time")
     receivedBlockTracker.addBlock(receivedBlockInfo)
+
+    val record = receivedBlockInfo.firstRecord
+    val now = System.currentTimeMillis
+    
+    val out = new BufferedWriter(new PrintWriter(new FileWriter(new File("/tmp/spark_benchmark.txt"), true)))
+    out.append(s"RT: $record $now\n")
+    out.close()
   }
 
   /** Report error sent by a receiver */

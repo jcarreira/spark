@@ -21,6 +21,7 @@ import java.io.NotSerializableException
 import java.util.Properties
 import java.util.concurrent.atomic.AtomicInteger
 
+import java.io._
 import scala.collection.mutable.{ArrayBuffer, HashMap, HashSet, Map, Stack}
 import scala.concurrent.Await
 import scala.concurrent.duration._
@@ -729,6 +730,11 @@ class DAGScheduler(
   {
     var finalStage: Stage = null
     try {
+      val out = new BufferedWriter(new PrintWriter(
+                    new FileWriter(new File("/tmp/spark_benchmark.txt"), true)))
+      val id = finalRDD.firstRecord
+      out.append(s"DAGScheduler::handleJobSubmitted $id ${(System.currentTimeMillis)}\n")
+      out.close()
       // New stage creation may throw an exception if, for example, jobs are run on a
       // HadoopRDD whose underlying HDFS files have been deleted.
       finalStage = newStage(finalRDD, partitions.size, None, jobId, callSite)
@@ -790,6 +796,11 @@ class DAGScheduler(
 
   /** Called when stage's parents are available and we can now do its task. */
   private def submitMissingTasks(stage: Stage, jobId: Int) {
+    val out = new BufferedWriter(new PrintWriter(
+                    new FileWriter(new File("/tmp/spark_benchmark.txt"), true)))
+    val id = stage.rdd.firstRecord
+    out.append(s"DAGScheduler::submitMissingTasks $id ${(System.currentTimeMillis)}\n")
+    out.close()
     logDebug("submitMissingTasks(" + stage + ")")
     // Get our pending tasks and remember them in our pendingTasks entry
     stage.pendingTasks.clear()
@@ -888,6 +899,11 @@ class DAGScheduler(
       logInfo("Submitting " + tasks.size + " missing tasks from " + stage + " (" + stage.rdd + ")")
       stage.pendingTasks ++= tasks
       logDebug("New pending tasks: " + stage.pendingTasks)
+      val out = new BufferedWriter(new PrintWriter(
+                    new FileWriter(new File("/tmp/spark_benchmark.txt"), true)))
+      val id = stage.rdd.firstRecord
+      out.append(s"DAGScheduler::submitMissingTasks-submitTasks $id ${(System.currentTimeMillis)}\n")
+      out.close()
       taskScheduler.submitTasks(
         new TaskSet(tasks.toArray, stage.id, stage.newAttemptId(), stage.jobId, properties))
       stage.latestInfo.submissionTime = Some(clock.getTime())

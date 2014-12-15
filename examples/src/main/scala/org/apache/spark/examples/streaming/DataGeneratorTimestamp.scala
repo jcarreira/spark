@@ -46,32 +46,20 @@ object DataGeneratorTimestamp {
       val socket = serverSocket.accept()
       println("Got a new connection")
       val out = new RateLimitedOutputStream(socket.getOutputStream, bytesPerSec)
+      var counter = 0
       try {
-
-        var timeBegin = System.currentTimeMillis
-        var sentBytes = 0
-
         while (true) {
+          val curTimeString = System.currentTimeMillis.toString
+          val sb = new StringBuilder
 
-          if (out.haveToWait()) {
-            val toWait = out.timeToWait();
-            println("Sleeping ms: " + toWait)
-            Thread.sleep(toWait + 5)
+          //for (i <- 0 until 1000/(curTimeString.length)) {
+          for (i <- 0 until 10) {
+              sb ++= curTimeString + "-" + counter.toString + "-" + port.toString + "\n"
+              counter += 1
           }
+          //sb ++= "\n"
 
-          val curTime = System.currentTimeMillis
-          var curTimeString = ""
-          (1 to 1000).foreach(id => curTimeString += curTime.toString + "\n")
-
-          sentBytes += curTimeString.length
-          out.write(curTimeString.getBytes)
-
-          // a second passed?
-          if (System.currentTimeMillis - timeBegin >= 1000) {
-              println("Last sec sent bytes: " + sentBytes)
-                sentBytes = 0
-                timeBegin = System.currentTimeMillis
-          }
+          out.write(sb.toString.getBytes)
         }
       } catch {
         case e: IOException =>

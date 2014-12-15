@@ -122,10 +122,7 @@ final private[streaming] class DStreamGraph extends Serializable with Logging {
       logInfo(s"GraphGenerate $dif")
       ret
     }
-    val end = System.currentTimeMillis
-    val dif2 = end - beg;
-    logInfo(s"GraphGenerateAll $dif2")
-    logDebug("Generated " + jobs.length + " jobs for time " + time)
+    logInfo("Generated " + jobs.length + " jobs for time " + time)
     jobs
   }
 

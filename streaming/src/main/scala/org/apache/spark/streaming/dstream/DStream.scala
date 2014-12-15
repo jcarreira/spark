@@ -325,12 +325,9 @@ abstract class DStream[T: ClassTag] (
     getOrCompute(time) match {
       case Some(rdd) => {
         val jobFunc = () => {
-          val emptyFunc = { 
-              (iterator: Iterator[T]) => { 
-                  logInfo(s"EmptyFunc: Running job $time")
-              } 
-          }
-
+          val emptyFunc = { (iterator: Iterator[T]) => {} }
+          val firstRecord = rdd.firstRecord
+          logInfo(s"DStream::generateJob time: $time $firstRecord")
           context.sparkContext.runJob(rdd, emptyFunc)
         }
         Some(new Job(time, jobFunc))
@@ -617,10 +614,10 @@ abstract class DStream[T: ClassTag] (
       println ("-------------------------------------------")
       println ("Time: " + time)
       println ("-------------------------------------------")
-      //first11.take(10).foreach(println)
-      //first1.take(1).foreach(println)
-      //if (first11.size > 10) println("...")
-      if (first1.size > 0) println("...")
+      first11.take(10).foreach( record => {
+              System.out.print(s"$record\n")
+        })
+      if (first11.size > 10) println("...")
       println()
     }
     new ForEachDStream(this, context.sparkContext.clean(foreachFunc)).register()

@@ -135,7 +135,35 @@ private[streaming] class ReceiverSupervisorImpl(
       metadataOption: Option[Any],
       blockIdOption: Option[StreamBlockId]
     ) {
-    pushAndReportBlock(ArrayBufferBlock(arrayBuffer), metadataOption, blockIdOption)
+    val blockId = blockIdOption.getOrElse(nextBlockId)
+
+    var head_record = ""
+    arrayBuffer match {
+        case array:ArrayBuffer[String] => {
+            val record = array.head;
+            head_record = record
+        }
+    }
+
+    val numRecords = receivedBlock match {
+      case ArrayBufferBlock(arrayBuffer) => {
+          arrayBuffer match {
+              case array:ArrayBuffer[String] => {
+                val last = array.last;
+                val head = array.head;
+
+                head_record = head.substring(0, 13)
+                last_record = last.substring(last.length - 13, last.length)
+                //last_record = last
+              }
+              arrayBuffer.size
+         }
+      }
+      case _ => -1
+    }
+    val blockStoreResult = receivedBlockHandler.storeBlock(blockId, receivedBlock)
+    val blockInfo = ReceivedBlockInfo(streamId, numRecords, blockStoreResult, head_record)
+    val future = trackerActor.ask(AddBlock(blockInfo))(askTimeout)
   }
 
   /** Store a iterator of received data as a data block into Spark's memory. */
@@ -187,39 +215,9 @@ private[streaming] class ReceiverSupervisorImpl(
 
     val blockStoreResult = receivedBlockHandler.storeBlock(blockId, receivedBlock)
 
-    //logInfo(s"ReceiverSupervisorImpl - block reported at $time")
-
-    //val array = receivedBlock match {
-    //    case ArrayBufferBlock(arrayBuffer) => arrayBuffer
-    //}   
-    ////val last = array.last
-    //
-    //logInfo("ReceiverSupervisorImpl last type: " + f(array.last))    
-
-    //val valueBytes = (array.last match {
-    //          case Some(x:Array[Byte]) => logInfo("ReceiverSupervisorImpl is Array[byte]")
-    //          case Some(x:ByteBuffer) => logInfo("ReceiverSupervisorImpl is ByteBuffer")
-    //          case Some(x:Array[ByteBuffer]) => 
-    //                 logInfo("ReceiverSupervisorImpl is Array[ByteBuffer")
-    //          case Some(x:String) => logInfo("ReceiverSupervisorImpl is String")
-    //            case _ => logInfo("ReceiverSupervisorImpl is unknown")
-    //            })
-    //val valueStr = new String(valueBytes)
-    //val value = -1
-    //logInfo(s"ReceiverSupervisorImpl - Block generated at $value and reported at $time")
-
-    val last_record_long = last_record.toLong
-    logInfo(s"ReceivedBlockInfo last record: $last_record $last_record_long")
-                
-    logInfo(s"pushAndReportBlock: Storing arraybuffer $head_record " +
-            s"$last_record ${(System.currentTimeMillis)}")
-
     val blockInfo = ReceivedBlockInfo(streamId, numRecords, 
                  blockStoreResult, last_record.toLong)
     val future = trackerActor.ask(AddBlock(blockInfo))(askTimeout)
-        //Await.result(future, askTimeout)
-    //    logDebug(s"Reported block $blockId")
-    logInfo(s"Pushed block $blockId in ${(System.currentTimeMillis - time)} ms")
   }
 
   /** Report error to the receiver tracker */

@@ -21,6 +21,7 @@ import java.util.concurrent.{ArrayBlockingQueue, TimeUnit}
 
 import scala.collection.mutable.ArrayBuffer
 
+import java.io._
 import org.apache.spark.{Logging, SparkConf}
 import org.apache.spark.storage.StreamBlockId
 import org.apache.spark.streaming.util.{RecurringTimer, SystemClock}
@@ -125,6 +126,7 @@ private[streaming] class BlockGenerator(
     listener.onAddData(data, metadata)
   }
 
+  private var counter = 0
   /** Change the buffer to which single records are added to. */
   private def updateCurrentBuffer(time: Long): Unit = synchronized {
     try {
@@ -148,12 +150,17 @@ private[streaming] class BlockGenerator(
         val newBlock = new Block(blockId, newBlockBuffer)
         listener.onGenerateBlock(blockId)
         blocksForPushing.put(newBlock)  // put is blocking when queue is full
+        logDebug("Last element in " + blockId + " is " + newBlockBuffer.last)
 
-        newBlockBuffer.last match {
-            case s:String =>
-        }
+         val stringBuffer = newBlockBuffer.asInstanceOf[ArrayBuffer[String]]
+         var first_record = ""
+         if (stringBuffer.size > 0) {
+           first_record = stringBuffer.head
+         }
 
-        logInfo("Last element in " + blockId + " is " + newBlockBuffer.last)
+         val out = new BufferedWriter(new PrintWriter(new FileWriter(new File("/tmp/spark_benchmark.txt"), true)))
+         out.append(s"BG: $first_record ${(System.currentTimeMillis)}\n")
+         out.close()
       }
       val t2 = System.currentTimeMillis
       logInfo(s"updateCurrentBuffer t1: $t1 t2: $t2")

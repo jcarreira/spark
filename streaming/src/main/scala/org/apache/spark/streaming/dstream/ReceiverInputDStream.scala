@@ -18,6 +18,7 @@
 package org.apache.spark.streaming.dstream
 
 import scala.reflect.ClassTag
+import org.apache.spark.Logging
 
 import org.apache.spark.rdd.{BlockRDD, RDD}
 import org.apache.spark.storage.{BlockId, StorageLevel}
@@ -37,7 +38,7 @@ import org.apache.spark.streaming.scheduler.ReceivedBlockInfo
  * @tparam T Class type of the object of this stream
  */
 abstract class ReceiverInputDStream[T: ClassTag](@transient ssc_ : StreamingContext)
-  extends InputDStream[T](ssc_) {
+  extends InputDStream[T](ssc_) with Logging {
 
   /** This is an unique identifier for the receiver input stream. */
   val id = ssc.getNewReceiverStreamId()
@@ -80,15 +81,27 @@ abstract class ReceiverInputDStream[T: ClassTag](@transient ssc_ : StreamingCont
 
         // If all the results are of type WriteAheadLogBasedStoreResult, then create
         // WriteAheadLogBackedBlockRDD else create simple BlockRDD.
-        if (resultTypes.size == 1 && resultTypes.head == classOf[WriteAheadLogBasedStoreResult]) {
-          val logSegments = blockStoreResults.map {
-            _.asInstanceOf[WriteAheadLogBasedStoreResult].segment
-          }.toArray
-          // Since storeInBlockManager = false, the storage level does not matter.
-          new WriteAheadLogBackedBlockRDD[T](ssc.sparkContext,
-            blockIds, logSegments, storeInBlockManager = true, StorageLevel.MEMORY_ONLY_SER)
+        val newRec = {
+          if (resultTypes.size == 1 && resultTypes.head == classOf[WriteAheadLogBasedStoreResult]) {
+            val logSegments = blockStoreResults.map {
+              _.asInstanceOf[WriteAheadLogBasedStoreResult].segment
+            }.toArray
+            // Since storeInBlockManager = false, the storage level does not matter.
+            new WriteAheadLogBackedBlockRDD[T](ssc.sparkContext,
+              blockIds, logSegments, storeInBlockManager = true, StorageLevel.MEMORY_ONLY_SER)
+          } else {
+            new BlockRDD[T](ssc.sc, blockIds)
+          }
+        }
+
+        val blockInfo = ssc.scheduler.receiverTracker.getReceivedBlockInfo(id)
+
+        logInfo("ReceiverInputDStream::compute ${(blockInfo.size)}")
+
+        if (blockInfo.size > 0) {
+          newRec.firstRecord = blockInfo.head.firstRecord
         } else {
-          new BlockRDD[T](ssc.sc, blockIds)
+          newRec.firstRecord = "Unknown"
         }
       }
     }

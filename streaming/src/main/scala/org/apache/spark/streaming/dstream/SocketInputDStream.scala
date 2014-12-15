@@ -72,24 +72,34 @@ class SocketReceiver[T: ClassTag] (
       socket = new Socket(host, port)
       logInfo("Connected to " + host + ":" + port)
       val iterator = bytesToObjects(socket.getInputStream())
+      val out = new BufferedWriter(new PrintWriter(new FileWriter(new File("/tmp/spark_benchmark.txt"), true)))
+      var counter = 0
       while(!isStopped && iterator.hasNext) {
-        val now = System.currentTimeMillis
-        val value = iterator.next
+          val now = System.currentTimeMillis
+          val value = iterator.next
+          var record = ""
+          var id = ""
+          //value match {
 
+          //  case value:String => {
+          //    record = value.substring(0,13)
+          //    //id = value.substring(14,value.length-1)
+          //        
+          //  }
+          //}
+        //val recordLong = record.toLong
+        //val diff = now - recordLong
 
-        var first = ""
-        var last = ""
-        value match {
-            case value:String => {
-                first = value.substring(0,13)
-                last = value.substring(value.length-13, value.length)
-            }
+        counter += 1
+        out.append(s"SIDS: $value ${(System.currentTimeMillis)}\n")
+        if (counter % 10000 == 0) {
+          //logInfo(s"SocketInputDStream: $value ${(System.currentTimeMillis)}")
+          out.flush()
         }
         store(value)
-        val afterStore = System.currentTimeMillis
-        logInfo(s"SocketInputDStream received now: $now first: " +
-                s"$first last: $last storeTime: ${(afterStore - now)}")
       }
+
+      out.close()
       logInfo("Stopped receiving")
       restart("Retrying connecting to " + host + ":" + port)
     } catch {
@@ -120,7 +130,8 @@ object SocketReceiver extends Logging {
         new BufferedReader(new InputStreamReader(inputStream, "UTF-8"))//, 10000000)
     new NextIterator[String] {
       protected override def getNext() = {
-        val nextValue = dataInputStream.readLine()
+        var nextValue = dataInputStream.readLine()
+
         if (nextValue == null) {
           finished = true
         }

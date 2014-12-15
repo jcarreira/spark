@@ -81,10 +81,18 @@ abstract class RDD[T: ClassTag](
   ) extends Serializable with Logging {
 
   /** Construct an RDD with just a one-to-one dependency on one parent */
-  def this(@transient oneParent: RDD[_]) =
+  def this(@transient oneParent: RDD[_]) = {
     this(oneParent.context , List(new OneToOneDependency(oneParent)))
+    firstRecord = oneParent.firstRecord
+  }
+  def this(@transient sC: SparkContext, @transient fR: String) = {
+    this(sC, null: Seq[Dependency[_]])
+    firstRecord = fR
+  }
 
   private[spark] def conf = sc.conf
+  var firstRecord: String = null
+
   // =======================================================================
   // Methods that should be implemented by subclasses of RDD
   // =======================================================================
