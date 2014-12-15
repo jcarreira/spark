@@ -21,9 +21,11 @@ NOHUP=
 for x in {1..16}; 
 #do echo "$NOHUP sudo scp $SPARK_VERSION_NAME-$1.tgz f$x:/usr/local/spark "; 
 do nohup sudo scp $SPARK_VERSION_NAME-$1.tgz f$x:/usr/local/spark&
+#do sudo scp $SPARK_VERSION_NAME-$1.tgz f$x:/usr/local/spark
 done
 for x in {1..16}; 
 #do echo "$NOHUP sudo scp install_joao1.1.0.sh f$x:/usr/local/spark/install_joao1.1.0.sh "
+#do sudo scp install_joao1.1.0.sh f$x:/usr/local/spark/install_joao1.1.0.sh
 do nohup sudo scp install_joao1.1.0.sh f$x:/usr/local/spark/install_joao1.1.0.sh&
 done
 sleep 3

@@ -17,7 +17,7 @@
 
 package org.apache.spark.executor
 
-import java.io.File
+import java.io._
 import java.lang.management.ManagementFactory
 import java.nio.ByteBuffer
 import java.util.concurrent._
@@ -180,7 +180,11 @@ private[spark] class Executor(
 
         // Run the actual task and measure its runtime.
         taskStart = System.currentTimeMillis()
-        println(s"XXX $startTime $a $b $c $d $taskStart")
+        
+        val out = new BufferedWriter(new PrintWriter(new FileWriter(new File("/tmp/spark_benchmark.txt"), true)))
+        out.append(s"Executor::runXXX $startTime $a $b $c $d $taskStart\n")
+        out.close()
+
         val value = task.run(taskId.toInt)
         val taskFinish = System.currentTimeMillis()
 

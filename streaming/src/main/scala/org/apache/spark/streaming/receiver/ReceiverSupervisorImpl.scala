@@ -112,7 +112,20 @@ private[streaming] class ReceiverSupervisorImpl(
     val time = System.currentTimeMillis
     blockManager.putArray(blockId, arrayBuffer.toArray[Any], storageLevel, tellMaster = true)
     logDebug("Pushed block " + blockId + " in " + (System.currentTimeMillis - time)  + " ms")
-    reportPushedBlock(blockId, arrayBuffer.size, optionalMetadata)
+
+    var head_record = ""
+    arrayBuffer match {
+        case array:ArrayBuffer[String] => {
+            val record = array.head;
+            head_record = record
+        }
+    }
+
+    var blockInfo = ReceivedBlockInfo(streamId, blockId, arrayBuffer.size, optionalMetadata.orNull, head_record)
+    trackerActor ! AddBlock(blockInfo)
+    logDebug("Reported block " + blockId)
+
+    //reportPushedBlock(blockId, arrayBuffer.size, optionalMetadata)
   }
 
   /** Store a iterator of received data as a data block into Spark's memory. */

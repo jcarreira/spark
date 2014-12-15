@@ -19,6 +19,7 @@ package org.apache.spark.streaming.dstream
 
 import scala.collection.mutable.HashMap
 import scala.reflect.ClassTag
+import org.apache.spark.Logging
 
 import org.apache.spark.rdd.{BlockRDD, RDD}
 import org.apache.spark.storage.BlockId
@@ -37,7 +38,7 @@ import org.apache.spark.streaming.scheduler.ReceivedBlockInfo
  * @tparam T Class type of the object of this stream
  */
 abstract class ReceiverInputDStream[T: ClassTag](@transient ssc_ : StreamingContext)
-  extends InputDStream[T](ssc_) {
+  extends InputDStream[T](ssc_) with Logging {
 
   /** Keeps all received blocks information */
   private lazy val receivedBlockInfo = new HashMap[Time, Array[ReceivedBlockInfo]]
@@ -66,7 +67,16 @@ abstract class ReceiverInputDStream[T: ClassTag](@transient ssc_ : StreamingCont
       val blockInfo = ssc.scheduler.receiverTracker.getReceivedBlockInfo(id)
       receivedBlockInfo(validTime) = blockInfo
       val blockIds = blockInfo.map(_.blockId.asInstanceOf[BlockId])
-      Some(new BlockRDD[T](ssc.sc, blockIds))
+      var newRecord = new BlockRDD[T](ssc.sc, blockIds)
+
+      logInfo("ReceiverInputDStream::compute ${(blockInfo.size)}")
+
+      if (blockInfo.size > 0) {
+        newRecord.firstRecord = blockInfo.head.firstRecord
+      } else {
+        newRecord.firstRecord = "Unknown"
+      }
+      Some(newRecord)
     } else {
       Some(new BlockRDD[T](ssc.sc, Array[BlockId]()))
     }

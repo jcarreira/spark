@@ -20,18 +20,20 @@ package org.apache.spark.streaming.dstream
 import org.apache.spark.streaming.{Duration, Time}
 import org.apache.spark.rdd.RDD
 import scala.reflect.ClassTag
+import org.apache.spark.Logging
 
 private[streaming]
 class MappedDStream[T: ClassTag, U: ClassTag] (
     parent: DStream[T],
     mapFunc: T => U
-  ) extends DStream[U](parent.ssc) {
+  ) extends DStream[U](parent.ssc) with Logging {
 
   override def dependencies = List(parent)
 
   override def slideDuration: Duration = parent.slideDuration
 
   override def compute(validTime: Time): Option[RDD[U]] = {
+    logInfo("MappedDStream::comput")
     parent.getOrCompute(validTime).map(_.map[U](mapFunc))
   }
 }

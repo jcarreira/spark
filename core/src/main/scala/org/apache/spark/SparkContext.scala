@@ -1081,6 +1081,14 @@ class SparkContext(config: SparkConf) extends Logging {
     if (dagScheduler == null) {
       throw new SparkException("SparkContext has been shutdown")
     }
+
+    val out = new BufferedWriter(new PrintWriter(
+              new FileWriter(new File("/tmp/spark_benchmark.txt"), true)))
+
+    val id = rdd.firstRecord
+    out.append(s"SparkContext::runJob $id ${(System.currentTimeMillis)}\n")
+    out.close()
+
     val callSite = getCallSite
     val cleanedFunc = clean(func)
     logInfo("Starting job: " + callSite.shortForm)
