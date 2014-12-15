@@ -81,7 +81,7 @@ abstract class ReceiverInputDStream[T: ClassTag](@transient ssc_ : StreamingCont
 
         // If all the results are of type WriteAheadLogBasedStoreResult, then create
         // WriteAheadLogBackedBlockRDD else create simple BlockRDD.
-        val newRec = {
+        var newRec = {
           if (resultTypes.size == 1 && resultTypes.head == classOf[WriteAheadLogBasedStoreResult]) {
             val logSegments = blockStoreResults.map {
               _.asInstanceOf[WriteAheadLogBasedStoreResult].segment
@@ -94,15 +94,14 @@ abstract class ReceiverInputDStream[T: ClassTag](@transient ssc_ : StreamingCont
           }
         }
 
-        val blockInfo = ssc.scheduler.receiverTracker.getReceivedBlockInfo(id)
+        logInfo("ReceiverInputDStream::compute ${(blockInfos.size)}")
 
-        logInfo("ReceiverInputDStream::compute ${(blockInfo.size)}")
-
-        if (blockInfo.size > 0) {
-          newRec.firstRecord = blockInfo.head.firstRecord
+        if (blockInfos.size > 0) {
+          newRec.firstRecord = blockInfos.head.firstRecord
         } else {
           newRec.firstRecord = "Unknown"
         }
+        newRec
       }
     }
     Some(blockRDD)

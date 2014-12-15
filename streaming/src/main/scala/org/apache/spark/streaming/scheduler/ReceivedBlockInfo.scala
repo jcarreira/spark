@@ -24,6 +24,6 @@ private[streaming] case class ReceivedBlockInfo(
     streamId: Int,
     numRecords: Long,
     blockStoreResult: ReceivedBlockStoreResult,
-    timestampMs: Long = 0
+    firstRecord: String = null
   )
 

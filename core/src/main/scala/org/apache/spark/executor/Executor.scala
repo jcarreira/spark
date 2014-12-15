@@ -193,9 +193,9 @@ private[spark] class Executor(
         // Run the actual task and measure its runtime.
         taskStart = System.currentTimeMillis()
         
-        val out = new BufferedWriter(new PrintWriter(new FileWriter(new File("/tmp/spark_benchmark.txt"), true)))
-        out.append(s"Executor::runXXX $startTime $a $b $c $d $taskStart\n")
-        out.close()
+        //val out = new BufferedWriter(new PrintWriter(new FileWriter(new File("/tmp/spark_benchmark.txt"), true)))
+        //out.append(s"Executor::runXXX $startTime $a $b $c $d $taskStart\n")
+        //out.close()
 
         val value = task.run(taskId.toInt)
         val taskFinish = System.currentTimeMillis()

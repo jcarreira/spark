@@ -145,23 +145,14 @@ private[streaming] class ReceiverSupervisorImpl(
         }
     }
 
-    val numRecords = receivedBlock match {
-      case ArrayBufferBlock(arrayBuffer) => {
-          arrayBuffer match {
+    val numRecords = arrayBuffer match {
               case array:ArrayBuffer[String] => {
-                val last = array.last;
                 val head = array.head;
-
                 head_record = head.substring(0, 13)
-                last_record = last.substring(last.length - 13, last.length)
-                //last_record = last
               }
               arrayBuffer.size
          }
-      }
-      case _ => -1
-    }
-    val blockStoreResult = receivedBlockHandler.storeBlock(blockId, receivedBlock)
+    val blockStoreResult = receivedBlockHandler.storeBlock(blockId, ArrayBufferBlock(arrayBuffer))
     val blockInfo = ReceivedBlockInfo(streamId, numRecords, blockStoreResult, head_record)
     val future = trackerActor.ask(AddBlock(blockInfo))(askTimeout)
   }
@@ -216,7 +207,7 @@ private[streaming] class ReceiverSupervisorImpl(
     val blockStoreResult = receivedBlockHandler.storeBlock(blockId, receivedBlock)
 
     val blockInfo = ReceivedBlockInfo(streamId, numRecords, 
-                 blockStoreResult, last_record.toLong)
+                 blockStoreResult, last_record)
     val future = trackerActor.ask(AddBlock(blockInfo))(askTimeout)
   }
 

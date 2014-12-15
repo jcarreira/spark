@@ -610,7 +610,7 @@ abstract class DStream[T: ClassTag] (
   def print() {
     def foreachFunc = (rdd: RDD[T], time: Time) => {
       //val first11 = rdd.take(11)
-      val first1 = rdd.take(1)
+      val first11 = rdd.take(11)
       println ("-------------------------------------------")
       println ("Time: " + time)
       println ("-------------------------------------------")

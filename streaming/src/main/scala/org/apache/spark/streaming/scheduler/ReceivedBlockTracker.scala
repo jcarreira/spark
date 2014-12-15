@@ -98,27 +98,14 @@ private[streaming] class ReceivedBlockTracker(
    */
   def allocateBlocksToBatch(batchTime: Time): Unit = synchronized {
     if (lastAllocatedBatchTime == null || batchTime > lastAllocatedBatchTime) {
-      //val beg = System.currentTimeMillis
       val streamIdToBlocks = streamIds.map { streamId =>
           (streamId, getReceivedBlockQueue(streamId).dequeueAll(x => true))
       }.toMap
       val allocatedBlocks = AllocatedBlocks(streamIdToBlocks)
 
-      streamIds.foreach(id => {
-              val block_seq = allocatedBlocks.getBlocksOfStream(id)
-              if (block_seq.length != 0 ) {
-                val bi = block_seq.head
-                val biTime = bi.timestampMs
-                val now = System.currentTimeMillis
-                logInfo(s"allocateBlocksToBatch bitime: $biTime now: $now")
-              }
-              })
-
       writeToLog(BatchAllocationEvent(batchTime, allocatedBlocks))
       timeToAllocatedBlocks(batchTime) = allocatedBlocks
       lastAllocatedBatchTime = batchTime
-      //val dif = (System.currentTimeMillis - beg)
-      //logInfo(s"allocatedBlocks ms: $dif")
       allocatedBlocks
     } else {
       throw new SparkException(s"Unexpected allocation of blocks, " +

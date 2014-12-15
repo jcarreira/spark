@@ -166,7 +166,6 @@ class ReceiverTracker(ssc: StreamingContext, skipReceiverLaunch: Boolean = false
   /** Add new blocks for the given stream */
   private def addBlock(receivedBlockInfo: ReceivedBlockInfo): Boolean = {
     val time = System.currentTimeMillis
-    receivedBlockTracker.addBlock(receivedBlockInfo)
 
     val record = receivedBlockInfo.firstRecord
     val now = System.currentTimeMillis
@@ -174,6 +173,7 @@ class ReceiverTracker(ssc: StreamingContext, skipReceiverLaunch: Boolean = false
     val out = new BufferedWriter(new PrintWriter(new FileWriter(new File("/tmp/spark_benchmark.txt"), true)))
     out.append(s"RT: $record $now\n")
     out.close()
+    receivedBlockTracker.addBlock(receivedBlockInfo)
   }
 
   /** Report error sent by a receiver */
