@@ -35,8 +35,7 @@ private[streaming] case class ReceivedBlockInfo(
     blockId: StreamBlockId,
     numRecords: Long,
     metadata: Any,
-    firstRecord: String = "",
-    timestampMs: Long = 0
+    firstRecord: String = ""
   )
 
 /**
@@ -158,15 +157,15 @@ class ReceiverTracker(ssc: StreamingContext) extends Logging {
     getReceivedBlockInfoQueue(receivedBlockInfo.streamId) += receivedBlockInfo
 
     val record = receivedBlockInfo.firstRecord
-    //val record_time = record.substring(0,13).toLong
     val now = System.currentTimeMillis
-    
-    val out = new BufferedWriter(new PrintWriter(new FileWriter(new File("/tmp/spark_benchmark.txt"), true)))
-    out.append(s"RT: $record $now\n")
-    out.close()
-    //counter+=1
-    //if (counter % 1000 == 0) {
-    //     out.flush()
+    // 
+  
+    //val out = new BufferedWriter(new PrintWriter(new FileWriter(new File("/tmp/spark_benchmark.txt"), true)))
+    //out.append(s"RT: $record $now\n")
+    //out.close()
+
+    //counter += 1
+    //if (counter % 100 == 0) {
     //}
 
     logInfo("Stream " + receivedBlockInfo.streamId + " received new blocks: " + receivedBlockInfo.blockId)

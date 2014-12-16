@@ -18,6 +18,7 @@
 package org.apache.spark.streaming.receiver
 
 import java.nio.ByteBuffer
+import java.io._
 import java.util.concurrent.atomic.AtomicLong
 
 import scala.collection.mutable.ArrayBuffer
@@ -59,6 +60,10 @@ private[streaming] class ReceiverSupervisorImpl(
       SparkEnv.driverActorSystemName, ip, port)
     env.actorSystem.actorSelection(url)
   }
+
+  //val logFile = new BufferedWriter(new PrintWriter(new FileWriter(new File("/tmp/spark_benchmark.txt"), true)))
+  //logFile.append(s"ReceiverSupervisorImpl-streamId: ${(receiver.streamId)}\n")
+  //logFile.close()
 
   /** Timeout for Akka actor messages */
   private val askTimeout = AkkaUtils.askTimeout(env.conf)

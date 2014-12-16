@@ -86,6 +86,7 @@ private[streaming] class BlockGenerator(
     currentBuffer += data
   }
 
+  private var outString = ""
   private var counter = 0
   /** Change the buffer to which single records are added to. */
   private def updateCurrentBuffer(time: Long): Unit = synchronized {
@@ -104,9 +105,16 @@ private[streaming] class BlockGenerator(
            first_record = stringBuffer.head
          }
 
-         val out = new BufferedWriter(new PrintWriter(new FileWriter(new File("/tmp/spark_benchmark.txt"), true)))
-         out.append(s"BG: $first_record ${(System.currentTimeMillis)}\n")
-         out.close()
+
+         outString += s"BG: $first_record ${(System.currentTimeMillis)}\n"
+         counter += 1
+
+         if (counter % 10000 == 0) {
+           val out = new BufferedWriter(new PrintWriter(new FileWriter(new File("/tmp/spark_benchmark.txt"), true)))
+           out.append(outString)
+           out.close()
+           outString = ""
+         }
       }
     } catch {
       case ie: InterruptedException =>
