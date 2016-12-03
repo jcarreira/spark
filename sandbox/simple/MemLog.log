@@ -1,0 +1,37 @@
+org.apache.spark.storage.BlockManagerMasterEndpoint:   Using org.apache.spark.storage.DefaultTopologyMapper for getting topology information
+org.apache.spark.storage.BlockManagerMasterEndpoint:   BlockManagerMasterEndpoint up
+org.apache.spark.storage.DiskBlockManager:   Created local directory at /tmp/blockmgr-4dfe2de9-37c1-47ad-8ba0-792d4c2950ba
+org.apache.spark.storage.memory.MemoryStore:   MemoryStore started with capacity 388.2 MB
+org.apache.spark.storage.BlockManager:   Using org.apache.spark.storage.RandomBlockReplicationPolicy for block replication policy
+org.apache.spark.storage.BlockManagerMaster:   Registering BlockManager BlockManagerId(driver, 128.32.35.220, 39987, None)
+org.apache.spark.storage.BlockManagerMasterEndpoint:   Registering block manager 128.32.35.220:39987 with 388.2 MB RAM, BlockManagerId(driver, 128.32.35.220, 39987, None)
+org.apache.spark.storage.BlockManagerMaster:   Registered BlockManager BlockManagerId(driver, 128.32.35.220, 39987, None)
+org.apache.spark.storage.BlockManager:   Initialized BlockManager: BlockManagerId(driver, 128.32.35.220, 39987, None)
+org.apache.spark.storage.memory.MemoryStore:   Block broadcast_0 stored as values in memory (estimated size 127.1 KB, free 388.1 MB)
+org.apache.spark.storage.memory.MemoryStore:   Block broadcast_0_piece0 stored as bytes in memory (estimated size 14.3 KB, free 388.1 MB)
+org.apache.spark.storage.BlockManagerInfo:   Added broadcast_0_piece0 in memory on 128.32.35.220:39987 (size: 14.3 KB, free: 388.2 MB)
+org.apache.spark.storage.memory.MemoryStore:   Block broadcast_1 stored as values in memory (estimated size 3.3 KB, free 388.1 MB)
+org.apache.spark.storage.memory.MemoryStore:   Block broadcast_1_piece0 stored as bytes in memory (estimated size 1971.0 B, free 388.1 MB)
+org.apache.spark.storage.BlockManagerInfo:   Added broadcast_1_piece0 in memory on 128.32.35.220:39987 (size: 1971.0 B, free: 388.2 MB)
+org.apache.spark.storage.memory.MemoryStore:   Block rdd_1_0 stored as values in memory (estimated size 7.0 KB, free 388.0 MB)
+org.apache.spark.storage.BlockManagerInfo:   Added rdd_1_0 in memory on 128.32.35.220:39987 (size: 7.0 KB, free: 388.2 MB)
+org.apache.spark.storage.memory.MemoryStore:   Block rdd_1_1 stored as values in memory (estimated size 6.6 KB, free 388.0 MB)
+org.apache.spark.storage.BlockManagerInfo:   Added rdd_1_1 in memory on 128.32.35.220:39987 (size: 6.6 KB, free: 388.2 MB)
+org.apache.spark.storage.memory.MemoryStore:   Block broadcast_2 stored as values in memory (estimated size 127.2 KB, free 387.9 MB)
+org.apache.spark.storage.memory.MemoryStore:   Block broadcast_2_piece0 stored as bytes in memory (estimated size 14.3 KB, free 387.9 MB)
+org.apache.spark.storage.BlockManagerInfo:   Added broadcast_2_piece0 in memory on 128.32.35.220:39987 (size: 14.3 KB, free: 388.2 MB)
+org.apache.spark.storage.memory.MemoryStore:   Block broadcast_3 stored as values in memory (estimated size 3.3 KB, free 387.9 MB)
+org.apache.spark.storage.memory.MemoryStore:   Block broadcast_3_piece0 stored as bytes in memory (estimated size 1965.0 B, free 387.9 MB)
+org.apache.spark.storage.BlockManagerInfo:   Added broadcast_3_piece0 in memory on 128.32.35.220:39987 (size: 1965.0 B, free: 388.2 MB)
+org.apache.spark.storage.memory.MemoryStore:   Block rdd_4_0 stored as values in memory (estimated size 6.9 KB, free 387.9 MB)
+org.apache.spark.storage.BlockManagerInfo:   Added rdd_4_0 in memory on 128.32.35.220:39987 (size: 6.9 KB, free: 388.1 MB)
+org.apache.spark.storage.memory.MemoryStore:   Block rdd_4_1 stored as values in memory (estimated size 6.5 KB, free 387.9 MB)
+org.apache.spark.storage.BlockManagerInfo:   Added rdd_4_1 in memory on 128.32.35.220:39987 (size: 6.5 KB, free: 388.1 MB)
+org.apache.spark.storage.memory.MemoryStore:   Block broadcast_4 stored as values in memory (estimated size 3.3 KB, free 387.9 MB)
+org.apache.spark.storage.memory.MemoryStore:   Block broadcast_4_piece0 stored as bytes in memory (estimated size 1973.0 B, free 387.9 MB)
+org.apache.spark.storage.BlockManagerInfo:   Added broadcast_4_piece0 in memory on 128.32.35.220:39987 (size: 1973.0 B, free: 388.1 MB)
+org.apache.spark.storage.BlockManager:   Found block rdd_1_0 locally
+org.apache.spark.storage.BlockManager:   Found block rdd_1_1 locally
+org.apache.spark.storage.memory.MemoryStore:   MemoryStore cleared
+org.apache.spark.storage.BlockManager:   BlockManager stopped
+org.apache.spark.storage.BlockManagerMaster:   BlockManagerMaster stopped
