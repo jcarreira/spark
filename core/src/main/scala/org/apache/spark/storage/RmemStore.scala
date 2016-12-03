@@ -25,8 +25,7 @@ import org.apache.spark.SparkConf
 import org.apache.spark.internal.Logging
 import org.apache.spark.util.io.ChunkedByteBuffer
 
-/* XXX Figure out how to build this */
-import RemoteBuf
+import ucb.remotebuf._
 
 /**
  * Remote Memory (disaggregation) Store
@@ -36,31 +35,31 @@ import RemoteBuf
  */
 private[spark] class RmemStore(conf: SparkConf, diskManager: DiskBlockManager) extends Logging {
 
-  RemoteBuf.BufferManager BM = RemoteBuf.BufferManager()
+  val BM = new RemoteBuf.BufferManager()
 
   def getSize(blockId: BlockId): Long = {
     logTrace("\"RMEM\" getSize()")
 
     try {
-      BM.GetBuffer(blockId.name).GetSize()
+      BM.getBuffer(blockId.name).getSize()
     } catch {
       /* The only exception possible is that the buffer doesn't exist, return 0 to mimic DiskStore */
-      case _ => 0L
+     case _: Throwable => 0L
     }
   }
 
-  def put(blockId: BlockId)(writeFunc: Java.io.OutputStream => Unit): Unit = {
+  def put(blockId: BlockId)(writeFunc: java.io.OutputStream => Unit): Unit = {
     logTrace("\"RMEM\" put()")
 
-    if (BM.BufferExists(blockId.name)) {
+    if (BM.bufferExists(blockId.name)) {
       throw new IllegalStateException(s"Block $blockId is already present in the RMRM store")
     }
 
     logDebug(s"Attempting to put block $blockId in RMEM")
     val startTime = System.currentTimeMillis
 
-    val RBuf = BM.CreateBuffer(blockId.name)
-    val RBufStream = RBuf.GetStream()
+    val RBuf = BM.createBuffer(blockId.name)
+    val RBufStream = new ROutputStream(RBuf)
 
     var threwException: Boolean = true
     try {
@@ -75,8 +74,6 @@ private[spark] class RmemStore(conf: SparkConf, diskManager: DiskBlockManager) e
         }
       }
     }
-    /* XXX I'm not clear on if closing RBufStream already does this... */
-    RBuf.WriteDone()
 
     val finishTime = System.currentTimeMillis
     logDebug("Block %s stored to RMEM in %d ms".format(
@@ -88,15 +85,15 @@ private[spark] class RmemStore(conf: SparkConf, diskManager: DiskBlockManager) e
     logTrace("\"RMEM\" putBytes()")
 
     /* This is nasty copy-pasta from put(). I should really come up with a way to do this better... */
-    if (BM.BufferExists(blockId.name)) {
+    if (BM.bufferExists(blockId.name)) {
       throw new IllegalStateException(s"Block $blockId is already present in the RMRM store")
     }
 
     logDebug(s"Attempting to put block $blockId in RMEM")
     val startTime = System.currentTimeMillis
 
-    val RBuf = BM.CreateBuffer(blockId.name)
-    val RBufChan = RBuf.GetChannel()
+    val RBuf = BM.createBuffer(blockId.name)
+    val RBufChan = new RWritableByteChannel(RBuf)
 
     var threwException: Boolean = true
     try {
@@ -104,15 +101,13 @@ private[spark] class RmemStore(conf: SparkConf, diskManager: DiskBlockManager) e
       threwException = false
     } finally {
       try {
-        Closeables.close(RBufStream, threwException)
+        Closeables.close(RBufChan, threwException)
       } finally {
         if (threwException) {
           remove(blockId)
         }
       }
     }
-    /* XXX I'm not clear on if closing RBufStream already does this... */
-    RBuf.WriteDone()
 
     val finishTime = System.currentTimeMillis
     logDebug("Block %s stored to RMEM in %d ms".format(
@@ -122,32 +117,40 @@ private[spark] class RmemStore(conf: SparkConf, diskManager: DiskBlockManager) e
 
   def getBytes(blockId: BlockId): ChunkedByteBuffer = {
     logTrace("\"RMEM\" getBytes()")
-    try {
-      val RBuf = BM.GetBuffer(blockId.name)
+    val RBuf = try {
+      BM.getBuffer(blockId.name)
     } catch {
       /* this mimics the behavior of DiskStore by creating an empty buffer */
-      val RBuf = BM.CreateBuffer(blockId.name)
+     case _: Throwable => BM.createBuffer(blockId.name)
     }
 
-    val localBuf = ByteBuffer.allocate(RBuf.GetSize())
+    val localBuf = ByteBuffer.allocate(RBuf.getSize())
     try {
-      RBuf.Read(localBuf)
+      RBuf.read(localBuf)
     } catch {
-      case _ => throw new IOException("Failed while reading block " + blockId.name + " from RMEM")
+      case _: Throwable => throw new IOException("Failed while reading block " + blockId.name + " from RMEM")
     }
 
     new ChunkedByteBuffer(localBuf)
-
   }
 
   def remove(blockId: BlockId): Boolean = {
     logTrace("\"RMEM\" remove()")
-    BM.DestroyBuffer(blockId.name)
+    if(this.contains(blockId)) {
+      try {
+        BM.deleteBuffer(blockId.name)
+        true
+      } catch {
+        case _: Throwable => false
+      }
+    } else {
+      false
+    }
   }
 
   def contains(blockId: BlockId): Boolean = {
     logTrace("\"RMEM\" contains()")
-    BM.BufferExists(blockId.name)
+    BM.bufferExists(blockId.name)
   }
 
 }
