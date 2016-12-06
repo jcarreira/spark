@@ -18,7 +18,6 @@ java can find them. I use /usr/lib:
 sudo cp external/remotebuf/libRemoteBuf.so /usr/lib/
 sudo cp external/remotebuf/ucb/remotebuf/linux-x86_64/libjniRemoteBuf.so /usr/lib/
 
-
 # Apache Spark
 
 Spark is a fast and general cluster computing system for Big Data. It provides
