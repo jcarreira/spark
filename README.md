@@ -1,3 +1,19 @@
+# !!! RMEM
+This is a (very experimental) branch of spark that uses remote memory. If you
+don't already know what this is, you probably don't want to use this repo!
+
+## Init and Build
+git submodule update --init --recursive
+
+cd external/remotemem
+./build.sh
+cd ../../
+
+./copy_jars.sh
+
+./build/mvn -DskipTests clean package
+
+
 # Apache Spark
 
 Spark is a fast and general cluster computing system for Big Data. It provides
