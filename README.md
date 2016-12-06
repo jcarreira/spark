@@ -1,3 +1,24 @@
+# !!! RMEM
+This is a (very experimental) branch of spark that uses remote memory. If you
+don't already know what this is, you probably don't want to use this repo!
+
+## Init and Build
+git submodule update --init --recursive
+
+cd external/remotebuf
+./build.sh
+cd ../../
+
+./copy_jars.sh
+
+./build/mvn -DskipTests clean package
+
+You will also need to copy some .so's from external/remotebuf to somewhere that
+java can find them. I use /usr/lib:
+sudo cp external/remotebuf/libRemoteBuf.so /usr/lib/
+sudo cp external/remotebuf/ucb/remotebuf/linux-x86_64/libjniRemoteBuf.so /usr/lib/
+
+
 # Apache Spark
 
 Spark is a fast and general cluster computing system for Big Data. It provides
