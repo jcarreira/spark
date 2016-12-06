@@ -900,7 +900,12 @@ private[spark] class BlockManager(
         logWarning(s"Putting block $blockId failed")
       }
       res
-    } finally {
+    } catch {
+      case ex: Throwable => {
+        logDebug("doPut exeption: " + ex.toString() + "\n" + ex.getStackTrace().mkString("\n"))
+        throw ex
+      }
+    }finally {
       // This cleanup is performed in a finally block rather than a `catch` to avoid having to
       // catch and properly re-throw InterruptedException.
       if (exceptionWasThrown) {
