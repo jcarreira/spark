@@ -26,3 +26,4 @@ mvn install:install-file -DlocalRepositoryPath=rmemLib -DcreateChecksum=true -Dp
 mvn install:install-file -DlocalRepositoryPath=rmemLib -DcreateChecksum=true -Dpackaging=jar -Dfile=${JAVACPP_JAR} -DgroupId=org.bytedeco.javacpp  -DartifactId=remoteMemCpp -Dversion=0.1
 
 cp ${RMEM_DIR}/libRemoteBuf.so ./rmemLib/
+cp ${RMEM_DIR}/ucb/remotebuf/linux-x86_64/libjniRemoteBuf.so ./rmemLib
