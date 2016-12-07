@@ -37,24 +37,13 @@ private[spark] class RmemStore(conf: SparkConf, diskManager: DiskBlockManager) e
 
   val BM = new RemoteBuf.BufferManager()
 
-  /* For debugging purposes: Use either a disk or remote memory (or both) for storage
-   * These are not mutually exclusive. If both are true, disk results will be returned but Rmem functions will be called
-   * as well. This way we can debug and compare results.
-   */
+  /* For debugging purposes: Use either a disk or remote memory for storage */
   val useDisk = false
-  val useRmem = true
+
   val diskStore: DiskStore = new DiskStore(conf, diskManager)
 
-  private def diskOrRmem[T](dFun: => T, rFun: => T, comp: (T, T) => Boolean, failMsg: String): T = {
-    if (useDisk && useRmem) {
-      /* Run both, compare results */
-      val rRes = rFun
-      val dRes = dFun
-      assert(comp(dRes, rRes), s"Rmem and Disk Results don't match: " + failMsg +
-        s"\nDisk: $dRes" +
-        s"\nRmem: $rRes")
-      dRes
-    } else if (useDisk) {
+  private def diskOrRmem[T](dFun: => T, rFun: => T): T = {
+    if (useDisk) {
       dFun
     } else {
       rFun
@@ -63,9 +52,7 @@ private[spark] class RmemStore(conf: SparkConf, diskManager: DiskBlockManager) e
 
   def getSize(blockId: BlockId): Long = {
     diskOrRmem(diskStore.getSize(blockId),
-      rmem_getSize(blockId),
-      (dRes: Long, rRes: Long) => {dRes == rRes},
-      s"getSize($blockId)")
+      rmem_getSize(blockId))
   }
 
   private def rmem_getSize(blockId: BlockId): Long = {
@@ -86,9 +73,7 @@ private[spark] class RmemStore(conf: SparkConf, diskManager: DiskBlockManager) e
   def put(blockId: BlockId)(writeFunc: java.io.OutputStream => Unit): Unit = {
     diskOrRmem(
       diskStore.put(blockId)(writeFunc),
-      rmem_put(blockId)(writeFunc),
-      (dRes: Unit, rRes: Unit) => {true},
-      s"put($blockId)")
+      rmem_put(blockId)(writeFunc))
   }
 
   private def rmem_put(blockId: BlockId)(writeFunc: java.io.OutputStream => Unit): Unit = {
@@ -122,9 +107,7 @@ private[spark] class RmemStore(conf: SparkConf, diskManager: DiskBlockManager) e
   def putBytes(blockId: BlockId, bytes: ChunkedByteBuffer): Unit = {
     diskOrRmem(
       diskStore.putBytes(blockId, bytes),
-      rmem_putBytes(blockId, bytes),
-      (dRes: Unit, rRes: Unit) => {true},
-      s"putBytes($blockId)"
+      rmem_putBytes(blockId, bytes)
     )
   }
 
@@ -176,11 +159,7 @@ private[spark] class RmemStore(conf: SparkConf, diskManager: DiskBlockManager) e
   def getBytes(blockId: BlockId): ChunkedByteBuffer = {
     diskOrRmem(
       diskStore.getBytes(blockId),
-      rmem_getBytes(blockId),
-      (dRes: ChunkedByteBuffer, mRes: ChunkedByteBuffer) => {
-        (dRes.toNetty.equals(mRes.toNetty) == 0)
-      },
-      s"getBytes($blockId)"
+      rmem_getBytes(blockId)
     )
   }
 
@@ -227,10 +206,7 @@ private[spark] class RmemStore(conf: SparkConf, diskManager: DiskBlockManager) e
   def remove(blockId: BlockId): Boolean = {
     diskOrRmem(
       diskStore.remove(blockId),
-      rmem_remove(blockId),
-      (dRes: Boolean, rRes: Boolean) => {dRes == rRes},
-      s"remove($blockId)"
-    )
+      rmem_remove(blockId))
   }
 
   private def rmem_remove(blockId: BlockId): Boolean = {
@@ -251,9 +227,7 @@ private[spark] class RmemStore(conf: SparkConf, diskManager: DiskBlockManager) e
   def contains(blockId: BlockId): Boolean = {
     diskOrRmem(
       diskStore.contains(blockId),
-      rmem_contains(blockId),
-      (dRes: Boolean, rRes: Boolean) => {dRes == rRes},
-      s"contains($blockId)"
+      rmem_contains(blockId)
     )
   }
 
