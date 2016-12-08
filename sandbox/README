@@ -1,0 +1,19 @@
+# Running jobs remotely
+
+1. conf/slaves
+Setup spark/conf/slaves to have the hostnames of the slaves you want to use.
+It is recommended that the master not be on the list (either localhost or the 
+name of the node you're running these scripts from).
+
+2. Initialize spark on slaves (will copy your current spark directory to slaves)
+./setup-distr.sh
+
+3. Run your test
+Pass "--master spark://$(hostname):7077" to bin/spark-submit. Most tests should
+have a run script setup to do this.
+
+4. Shutdown and cleanup (won't clean up local files, just stops the spark jobs)
+./stop-distr.sh
+
+
+

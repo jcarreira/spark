@@ -13,17 +13,7 @@ don't already know what this is, you probably don't want to use this repo!
 
     ./build/mvn -DskipTests clean package
 
-You will also need to copy some .so's from external/remotebuf to somewhere that
-java can find them. I use /usr/lib:
-
-    sudo cp external/remotebuf/libRemoteBuf.so /usr/lib/
-    sudo cp external/remotebuf/ucb/remotebuf/linux-x86_64/libjniRemoteBuf.so /usr/lib/
-
 ## Building on firebox0
-
-    # add to LD_LIBRARY_PATH instead of copying to /usr/lib
-    cp external/remotebuf/ucb/remotebuf/linux-x86_64/libjniRemoteBuf.so external/remotebuf/
-    export LD_LIBRARY_PATH=$(pwd)/external/remotebuf:$LD_LIBRARY_PATH
 
     ## see /scratch/sagark/settings.xml to bypass using ~/.m2, which is slow
     ./build/mvn --global-settings ../settings.xml -Pyarn -Phive -Phive-thriftserver -Phadoop-2.6 -Dhadoop.version=2.6.0 -DskipTests -T 16 clean package
