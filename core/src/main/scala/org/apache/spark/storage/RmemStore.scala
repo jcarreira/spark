@@ -37,17 +37,36 @@ private[spark] class RmemStore(conf: SparkConf, diskManager: DiskBlockManager) e
 
   val BM = new RemoteBuf.BufferManager()
 
-  /* For debugging purposes: Use either a disk or remote memory for storage */
-  val useDisk = false
-
   val diskStore: DiskStore = new DiskStore(conf, diskManager)
 
+  /* Use either a disk or remote memory for storage */
+  val useDisk = false
+  val logStats = true
+
+  /* Various counters for performance monitoring */
+  var totalStored: Long = 0 // Total number of bytes written to Rmem/Disk
+  var timeStoring: Long = 0 // Total time spent writing to Rmem
+  var curStored: Long = 0 // Total number of bytes stored on Rmem/Disk right now (used to calculate maxStored)
+  var maxStored: Long = 0 // Maximum bytes stored on Rmem/Disk at any one time
+  var totalRead: Long = 0 // Total number of bytes read back from Rmem
+  var timeReading: Long = 0 // Total time spent reading from Rmem
+  var timeInRmem: Long = 0 // Total time spent in the Rmem Library
+
   private def diskOrRmem[T](dFun: => T, rFun: => T): T = {
-    if (useDisk) {
+    val startTime = if (logStats) System.currentTimeMillis() else 0
+
+    val ret = if (useDisk) {
       dFun
     } else {
       rFun
     }
+
+    if(logStats) {
+      val endTime = System.currentTimeMillis()
+      timeInRmem += endTime - startTime
+    }
+
+    ret
   }
 
   def getSize(blockId: BlockId): Long = {
@@ -70,9 +89,21 @@ private[spark] class RmemStore(conf: SparkConf, diskManager: DiskBlockManager) e
   }
 
   def put(blockId: BlockId)(writeFunc: java.io.OutputStream => Unit): Unit = {
+    val startTime = if (logStats) System.currentTimeMillis() else 0
+
     diskOrRmem(
       diskStore.put(blockId)(writeFunc),
       rmem_put(blockId)(writeFunc))
+
+    if (logStats) {
+      val blockSize = getSize(blockId)
+      totalStored += blockSize
+      curStored += blockSize
+      maxStored = if (curStored > maxStored) curStored else maxStored
+
+      val endTime = System.currentTimeMillis()
+      timeStoring += endTime - startTime
+    }
   }
 
   private def rmem_put(blockId: BlockId)(writeFunc: java.io.OutputStream => Unit): Unit = {
@@ -107,10 +138,21 @@ private[spark] class RmemStore(conf: SparkConf, diskManager: DiskBlockManager) e
   }
 
   def putBytes(blockId: BlockId, bytes: ChunkedByteBuffer): Unit = {
+    val startTime = if (logStats) System.currentTimeMillis() else 0
+
     diskOrRmem(
       diskStore.putBytes(blockId, bytes),
       rmem_putBytes(blockId, bytes)
     )
+    if (logStats) {
+      val blockSize = bytes.size
+      totalStored += blockSize
+      curStored += blockSize
+      maxStored = if (curStored > maxStored) curStored else maxStored
+
+      val endTime = System.currentTimeMillis()
+      timeStoring += endTime - startTime
+    }
   }
 
   private def rmem_putBytes(blockId: BlockId, bytes: ChunkedByteBuffer): Unit = {
@@ -147,10 +189,20 @@ private[spark] class RmemStore(conf: SparkConf, diskManager: DiskBlockManager) e
   }
 
   def getBytes(blockId: BlockId): ChunkedByteBuffer = {
-    diskOrRmem(
+    val startTime = if (logStats) System.currentTimeMillis() else 0
+
+    val bytes = diskOrRmem(
       diskStore.getBytes(blockId),
       rmem_getBytes(blockId)
     )
+
+    if(logStats) {
+      val endTime = System.currentTimeMillis()
+
+      totalRead += bytes.size
+      timeReading += endTime - startTime
+    }
+    bytes
   }
 
   private def rmem_getBytes(blockId: BlockId): ChunkedByteBuffer = {
@@ -181,6 +233,12 @@ private[spark] class RmemStore(conf: SparkConf, diskManager: DiskBlockManager) e
   }
 
   def remove(blockId: BlockId): Boolean = {
+    if (logStats) {
+      val size = getSize(blockId)
+      totalStored -= size
+      curStored -= size
+    }
+
     diskOrRmem(
       diskStore.remove(blockId),
       rmem_remove(blockId))
@@ -216,4 +274,14 @@ private[spark] class RmemStore(conf: SparkConf, diskManager: DiskBlockManager) e
     BM.bufferExists(blockId.name)
   }
 
+  def shutdown(): Unit = {
+    if (logStats) {
+      logInfo(s"(RmemStoreStats), totalWritten, $totalStored")
+      logInfo(s"(RmemStoreStats), totalRead, $totalRead")
+      logInfo(s"(RmemStoreStats), maximumSize, $maxStored")
+      logInfo(s"(RmemStoreStats), timeWriting, $timeStoring")
+      logInfo(s"(RmemStoreStats), timeReading, $timeReading")
+      logInfo("(RmemStoreStats), timeOther, " + (timeInRmem - (timeStoring + timeReading)))
+    }
+  }
 }
