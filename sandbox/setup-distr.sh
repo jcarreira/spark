@@ -1,7 +1,7 @@
 #!/bin/bash
-SRC_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+SRC_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
 
-../sbin/start-master.sh
-../sbin/slaves.sh mkdir -p ${SRC_DIR}
-../sbin/slaves.sh rsync -qave ssh $(hostname):${SRC_DIR}/ ${SRC_DIR}/
-../sbin/start-slaves.sh
+echo ../sbin/start-master.sh
+echo ../sbin/slaves.sh mkdir -p ${SRC_DIR}
+echo ../sbin/slaves.sh rsync -qave ssh $(hostname):${SRC_DIR}/ ${SRC_DIR}/
+echo ../sbin/start-slaves.sh
