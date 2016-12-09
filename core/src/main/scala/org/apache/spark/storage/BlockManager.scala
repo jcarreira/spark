@@ -91,8 +91,7 @@ private[spark] class BlockManager(
   // Actual storage of where blocks are kept
   private[spark] val memoryStore =
     new MemoryStore(conf, blockInfoManager, serializerManager, memoryManager, this)
-//  private[spark] val diskStore = new DiskStore(conf, diskBlockManager)
-  private[spark] val diskStore = new RmemStore(conf, diskBlockManager)
+  private[spark] val rmemStore = new RmemStore(conf, diskBlockManager)
   memoryManager.setMemoryStore(memoryStore)
 
   // Note: depending on the memory manager, `maxMemory` may actually vary over time.
@@ -332,7 +331,7 @@ private[spark] class BlockManager(
   def getStatus(blockId: BlockId): Option[BlockStatus] = {
     blockInfoManager.get(blockId).map { info =>
       val memSize = if (memoryStore.contains(blockId)) memoryStore.getSize(blockId) else 0L
-      val diskSize = if (diskStore.contains(blockId)) diskStore.getSize(blockId) else 0L
+      val diskSize = if (rmemStore.contains(blockId)) rmemStore.getSize(blockId) else 0L
       BlockStatus(info.level, memSize = memSize, diskSize = diskSize)
     }
   }
@@ -400,7 +399,7 @@ private[spark] class BlockManager(
           BlockStatus.empty
         case level =>
           val inMem = level.useMemory && memoryStore.contains(blockId)
-          val onDisk = level.useDisk && diskStore.contains(blockId)
+          val onDisk = level.useDisk && rmemStore.contains(blockId)
           val deserialized = if (inMem) level.deserialized else false
           val replication = if (inMem  || onDisk) level.replication else 1
           val storageLevel = StorageLevel(
@@ -410,7 +409,7 @@ private[spark] class BlockManager(
             deserialized = deserialized,
             replication = replication)
           val memSize = if (inMem) memoryStore.getSize(blockId) else 0L
-          val diskSize = if (onDisk) diskStore.getSize(blockId) else 0L
+          val diskSize = if (onDisk) rmemStore.getSize(blockId) else 0L
           BlockStatus(storageLevel, memSize, diskSize)
       }
     }
@@ -458,9 +457,9 @@ private[spark] class BlockManager(
           }
           val ci = CompletionIterator[Any, Iterator[Any]](iter, releaseLock(blockId))
           Some(new BlockResult(ci, DataReadMethod.Memory, info.size))
-        } else if (level.useDisk && diskStore.contains(blockId)) {
+        } else if (level.useDisk && rmemStore.contains(blockId)) {
           val iterToReturn: Iterator[Any] = {
-            val diskBytes = diskStore.getBytes(blockId)
+            val diskBytes = rmemStore.getBytes(blockId)
             if (level.deserialized) {
               val diskValues = serializerManager.dataDeserializeStream(
                 blockId,
@@ -513,12 +512,12 @@ private[spark] class BlockManager(
     // serializing in-memory objects, and, finally, throw an exception if the block does not exist.
     if (level.deserialized) {
       // Try to avoid expensive serialization by reading a pre-serialized copy from disk:
-      if (level.useDisk && diskStore.contains(blockId)) {
+      if (level.useDisk && rmemStore.contains(blockId)) {
         // Note: we purposely do not try to put the block back into memory here. Since this branch
         // handles deserialized blocks, this block may only be cached in memory as objects, not
         // serialized bytes. Because the caller only requested bytes, it doesn't make sense to
         // cache the block's deserialized objects since that caching may not have a payoff.
-        diskStore.getBytes(blockId)
+        rmemStore.getBytes(blockId)
       } else if (level.useMemory && memoryStore.contains(blockId)) {
         // The block was not found on disk, so serialize an in-memory copy:
         serializerManager.dataSerializeWithExplicitClassTag(
@@ -529,8 +528,8 @@ private[spark] class BlockManager(
     } else {  // storage level is serialized
       if (level.useMemory && memoryStore.contains(blockId)) {
         memoryStore.getBytes(blockId).get
-      } else if (level.useDisk && diskStore.contains(blockId)) {
-        val diskBytes = diskStore.getBytes(blockId)
+      } else if (level.useDisk && rmemStore.contains(blockId)) {
+        val diskBytes = rmemStore.getBytes(blockId)
         maybeCacheDiskBytesInMemory(info, blockId, level, diskBytes).getOrElse(diskBytes)
       } else {
         handleLocalReadFailure(blockId)
@@ -818,10 +817,10 @@ private[spark] class BlockManager(
         }
         if (!putSucceeded && level.useDisk) {
           logWarning(s"Persisting block $blockId to disk instead.")
-          diskStore.putBytes(blockId, bytes)
+          rmemStore.putBytes(blockId, bytes)
         }
       } else if (level.useDisk) {
-        diskStore.putBytes(blockId, bytes)
+        rmemStore.putBytes(blockId, bytes)
       }
 
       val putBlockStatus = getCurrentBlockStatus(blockId, info)
@@ -967,10 +966,10 @@ private[spark] class BlockManager(
               // Not enough space to unroll this block; drop to disk if applicable
               if (level.useDisk) {
                 logWarning(s"Persisting block $blockId to disk instead.")
-                diskStore.put(blockId) { fileOutputStream =>
+                rmemStore.put(blockId) { fileOutputStream =>
                   serializerManager.dataSerializeStream(blockId, fileOutputStream, iter)(classTag)
                 }
-                size = diskStore.getSize(blockId)
+                size = rmemStore.getSize(blockId)
               } else {
                 iteratorFromFailedMemoryStorePut = Some(iter)
               }
@@ -983,10 +982,10 @@ private[spark] class BlockManager(
               // Not enough space to unroll this block; drop to disk if applicable
               if (level.useDisk) {
                 logWarning(s"Persisting block $blockId to disk instead.")
-                diskStore.put(blockId) { fileOutputStream =>
+                rmemStore.put(blockId) { fileOutputStream =>
                   partiallySerializedValues.finishWritingToStream(fileOutputStream)
                 }
-                size = diskStore.getSize(blockId)
+                size = rmemStore.getSize(blockId)
               } else {
                 iteratorFromFailedMemoryStorePut = Some(partiallySerializedValues.valuesIterator)
               }
@@ -994,10 +993,10 @@ private[spark] class BlockManager(
         }
 
       } else if (level.useDisk) {
-        diskStore.put(blockId) { fileOutputStream =>
+        rmemStore.put(blockId) { fileOutputStream =>
           serializerManager.dataSerializeStream(blockId, fileOutputStream, iterator())(classTag)
         }
-        size = diskStore.getSize(blockId)
+        size = rmemStore.getSize(blockId)
       }
 
       val putBlockStatus = getCurrentBlockStatus(blockId, info)
@@ -1259,18 +1258,18 @@ private[spark] class BlockManager(
     val level = info.level
 
     // Drop to disk, if storage level requires
-    if (level.useDisk && !diskStore.contains(blockId)) {
+    if (level.useDisk && !rmemStore.contains(blockId)) {
       logInfo(s"Writing block $blockId to disk")
       data() match {
         case Left(elements) =>
-          diskStore.put(blockId) { fileOutputStream =>
+          rmemStore.put(blockId) { fileOutputStream =>
             serializerManager.dataSerializeStream(
               blockId,
               fileOutputStream,
               elements.toIterator)(info.classTag.asInstanceOf[ClassTag[T]])
           }
         case Right(bytes) =>
-          diskStore.putBytes(blockId, bytes)
+          rmemStore.putBytes(blockId, bytes)
       }
       blockIsUpdated = true
     }
@@ -1342,7 +1341,7 @@ private[spark] class BlockManager(
   private def removeBlockInternal(blockId: BlockId, tellMaster: Boolean): Unit = {
     // Removals are idempotent in disk store and memory store. At worst, we get a warning.
     val removedFromMemory = memoryStore.remove(blockId)
-    val removedFromDisk = diskStore.remove(blockId)
+    val removedFromDisk = rmemStore.remove(blockId)
     if (!removedFromMemory && !removedFromDisk) {
       logWarning(s"Block $blockId could not be removed as it was not found on disk or in memory")
     }
@@ -1368,6 +1367,7 @@ private[spark] class BlockManager(
     rpcEnv.stop(slaveEndpoint)
     blockInfoManager.clear()
     memoryStore.clear()
+    rmemStore.shutdown()
     futureExecutionContext.shutdownNow()
     logInfo("BlockManager stopped")
   }
