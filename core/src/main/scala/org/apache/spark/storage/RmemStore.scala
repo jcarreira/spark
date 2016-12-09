@@ -276,12 +276,12 @@ private[spark] class RmemStore(conf: SparkConf, diskManager: DiskBlockManager) e
 
   def shutdown(): Unit = {
     if (logStats) {
-      logTrace(s"(RmemStoreStats), totalWritten, $totalStored")
-      logTrace(s"(RmemStoreStats), totalRead, $totalRead")
-      logTrace(s"(RmemStoreStats), maximumSize, $maxStored")
-      logTrace(s"(RmemStoreStats), timeWriting, $timeStoring")
-      logTrace(s"(RmemStoreStats), timeReading, $timeReading")
-      logTrace("(RmemStoreStats), timeOther, " + (timeInRmem - (timeStoring + timeReading)))
+      logInfo(s"(RmemStoreStats), totalWritten, $totalStored")
+      logInfo(s"(RmemStoreStats), totalRead, $totalRead")
+      logInfo(s"(RmemStoreStats), maximumSize, $maxStored")
+      logInfo(s"(RmemStoreStats), timeWriting, $timeStoring")
+      logInfo(s"(RmemStoreStats), timeReading, $timeReading")
+      logInfo("(RmemStoreStats), timeOther, " + (timeInRmem - (timeStoring + timeReading)))
     }
   }
 }
