@@ -901,7 +901,7 @@ private[spark] class BlockManager(
       res
     } catch {
       case ex: Throwable => {
-        logDebug("doPut exeption: " + ex.toString() + "\n" + ex.getStackTrace().mkString("\n"))
+        logDebug("doPut exception: " + ex.toString() + "\n" + ex.getStackTrace().mkString("\n"))
         throw ex
       }
     }finally {

@@ -1,0 +1,17 @@
+Expected output of the simple spark test under different configs
+
+### ~1G input (in hdfs)
+[nathanp@f8:/scratch/nathanp/spark/sandbox/simple]$ ./runTest.sh
+++ hostname
++ ../../bin/spark-submit --class=SimpleApp --master spark://f8:7077 target/scala-2.11/simple-project_2.11-1.0.jar
+org.apache.spark.SparkContext:   Support for Java 7 is deprecated as of Spark 2.0.0
+org.apache.hadoop.util.NativeCodeLoader:   Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+SLOC in C files: 18115506
+SLOC in H files: 5115950
+Branches in C files: 4059864
+
+### ~200MB input file (local)
+...
+SLOC in C files: 3019251
+SLOC in H files: 1023190
+Branches in C files: 676644

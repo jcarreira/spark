@@ -1,0 +1,485 @@
+
+#### Run with ~200MB input file with 1 task locally ####
+[nathanp@f8:/scratch/nathanp/spark/sandbox/simple]$ ./runTest.sh
++ ../../bin/spark-submit --class=SimpleApp --master 'local[1]' target/scala-2.11/simple-project_2.11-1.0.jar
+org.apache.spark.SparkContext:   Support for Java 7 is deprecated as of Spark 2.0.0
+org.apache.hadoop.util.NativeCodeLoader:   Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+SLOC in C files: 3019251
+SLOC in H files: 1023190
+Branches in C files: 676644
+####
+
+org.apache.spark.storage.BlockManagerMasterEndpoint:   Using org.apache.spark.storage.DefaultTopologyMapper for getting topology information
+org.apache.spark.storage.BlockManagerMasterEndpoint:   BlockManagerMasterEndpoint up
+org.apache.spark.storage.DiskBlockManager:   Created local directory at /tmp/blockmgr-f5f17ff8-0e5c-4df9-9964-54042c424f21
+org.apache.spark.storage.DiskBlockManager:   Adding shutdown hook
+org.apache.spark.storage.memory.MemoryStore:   MemoryStore started with capacity 408.9 MB
+org.apache.spark.storage.BlockManager:   Using org.apache.spark.storage.RandomBlockReplicationPolicy for block replication policy
+org.apache.spark.storage.BlockManagerMaster:   Registering BlockManager BlockManagerId(driver, 10.10.49.90, 36148, None)
+org.apache.spark.storage.DefaultTopologyMapper:   Got a request for 10.10.49.90
+org.apache.spark.storage.BlockManagerMasterEndpoint:   Registering block manager 10.10.49.90:36148 with 408.9 MB RAM, BlockManagerId(driver, 10.10.49.90, 36148, None)
+org.apache.spark.storage.BlockManagerMaster:   Registered BlockManager BlockManagerId(driver, 10.10.49.90, 36148, None)
+org.apache.spark.storage.BlockManager:   Initialized BlockManager: BlockManagerId(driver, 10.10.49.90, 36148, None)
+org.apache.spark.storage.memory.MemoryStore:   Block broadcast_0 stored as values in memory (estimated size 225.2 KB, free 408.7 MB)
+org.apache.spark.storage.BlockManager:   Put block broadcast_0 locally took  96 ms
+org.apache.spark.storage.BlockManager:   Putting block broadcast_0 without replication took  97 ms
+org.apache.spark.storage.memory.MemoryStore:   Block broadcast_0_piece0 stored as bytes in memory (estimated size 20.0 KB, free 408.7 MB)
+org.apache.spark.storage.BlockManagerInfo:   Added broadcast_0_piece0 in memory on 10.10.49.90:36148 (size: 20.0 KB, free: 408.9 MB)
+org.apache.spark.storage.BlockManagerMaster:   Updated info of block broadcast_0_piece0
+org.apache.spark.storage.BlockManager:   Told master about block broadcast_0_piece0
+org.apache.spark.storage.BlockManager:   Put block broadcast_0_piece0 locally took  4 ms
+org.apache.spark.storage.BlockManager:   Putting block broadcast_0_piece0 without replication took  4 ms
+org.apache.spark.storage.BlockManager:   Getting local block broadcast_0
+org.apache.spark.storage.BlockManager:   Level for block broadcast_0 is StorageLevel(disk, memory, deserialized, 1 replicas)
+org.apache.spark.storage.memory.MemoryStore:   Block broadcast_1 stored as values in memory (estimated size 3.3 KB, free 408.7 MB)
+org.apache.spark.storage.BlockManager:   Put block broadcast_1 locally took  1 ms
+org.apache.spark.storage.BlockManager:   Putting block broadcast_1 without replication took  2 ms
+org.apache.spark.storage.memory.MemoryStore:   Block broadcast_1_piece0 stored as bytes in memory (estimated size 1969.0 B, free 408.7 MB)
+org.apache.spark.storage.BlockManagerInfo:   Added broadcast_1_piece0 in memory on 10.10.49.90:36148 (size: 1969.0 B, free: 408.9 MB)
+org.apache.spark.storage.BlockManagerMaster:   Updated info of block broadcast_1_piece0
+org.apache.spark.storage.BlockManager:   Told master about block broadcast_1_piece0
+org.apache.spark.storage.BlockManager:   Put block broadcast_1_piece0 locally took  1 ms
+org.apache.spark.storage.BlockManager:   Putting block broadcast_1_piece0 without replication took  1 ms
+org.apache.spark.storage.BlockManager:   Getting local block broadcast_1
+org.apache.spark.storage.BlockManager:   Level for block broadcast_1 is StorageLevel(disk, memory, deserialized, 1 replicas)
+org.apache.spark.storage.BlockManager:   Getting local block rdd_1_0
+org.apache.spark.storage.BlockManager:   Block rdd_1_0 was not found
+org.apache.spark.storage.BlockManager:   Getting remote block rdd_1_0
+org.apache.spark.storage.BlockManager:   Block rdd_1_0 not found
+org.apache.spark.storage.BlockManager:   Getting local block broadcast_0
+org.apache.spark.storage.BlockManager:   Level for block broadcast_0 is StorageLevel(disk, memory, deserialized, 1 replicas)
+org.apache.spark.storage.memory.MemoryStore:   Block rdd_1_0 stored as values in memory (estimated size 119.2 MB, free 289.5 MB)
+org.apache.spark.storage.BlockManagerInfo:   Added rdd_1_0 in memory on 10.10.49.90:36148 (size: 119.2 MB, free: 289.7 MB)
+org.apache.spark.storage.BlockManagerMaster:   Updated info of block rdd_1_0
+org.apache.spark.storage.BlockManager:   Told master about block rdd_1_0
+org.apache.spark.storage.BlockManager:   Put block rdd_1_0 locally took  764 ms
+org.apache.spark.storage.BlockManager:   Putting block rdd_1_0 without replication took  765 ms
+org.apache.spark.storage.BlockManager:   Getting local block rdd_1_0
+org.apache.spark.storage.BlockManager:   Level for block rdd_1_0 is StorageLevel(disk, memory, deserialized, 1 replicas)
+org.apache.spark.storage.BlockManager:   Getting local block broadcast_1
+org.apache.spark.storage.BlockManager:   Level for block broadcast_1 is StorageLevel(disk, memory, deserialized, 1 replicas)
+org.apache.spark.storage.BlockManager:   Getting local block rdd_1_1
+org.apache.spark.storage.BlockManager:   Block rdd_1_1 was not found
+org.apache.spark.storage.BlockManager:   Getting remote block rdd_1_1
+org.apache.spark.storage.BlockManager:   Block rdd_1_1 not found
+org.apache.spark.storage.BlockManager:   Getting local block broadcast_0
+org.apache.spark.storage.BlockManager:   Level for block broadcast_0 is StorageLevel(disk, memory, deserialized, 1 replicas)
+org.apache.spark.storage.memory.MemoryStore:   Block rdd_1_1 stored as values in memory (estimated size 115.4 MB, free 174.1 MB)
+org.apache.spark.storage.BlockManagerInfo:   Added rdd_1_1 in memory on 10.10.49.90:36148 (size: 115.4 MB, free: 174.3 MB)
+org.apache.spark.storage.BlockManagerMaster:   Updated info of block rdd_1_1
+org.apache.spark.storage.BlockManager:   Told master about block rdd_1_1
+org.apache.spark.storage.BlockManager:   Put block rdd_1_1 locally took  387 ms
+org.apache.spark.storage.BlockManager:   Putting block rdd_1_1 without replication took  387 ms
+org.apache.spark.storage.BlockManager:   Getting local block rdd_1_1
+org.apache.spark.storage.BlockManager:   Level for block rdd_1_1 is StorageLevel(disk, memory, deserialized, 1 replicas)
+org.apache.spark.storage.BlockManager:   Getting local block broadcast_1
+org.apache.spark.storage.BlockManager:   Level for block broadcast_1 is StorageLevel(disk, memory, deserialized, 1 replicas)
+org.apache.spark.storage.BlockManager:   Getting local block rdd_1_2
+org.apache.spark.storage.BlockManager:   Block rdd_1_2 was not found
+org.apache.spark.storage.BlockManager:   Getting remote block rdd_1_2
+org.apache.spark.storage.BlockManager:   Block rdd_1_2 not found
+org.apache.spark.storage.BlockManager:   Getting local block broadcast_0
+org.apache.spark.storage.BlockManager:   Level for block broadcast_0 is StorageLevel(disk, memory, deserialized, 1 replicas)
+org.apache.spark.storage.memory.MemoryStore:   Block rdd_1_2 stored as values in memory (estimated size 98.9 MB, free 75.1 MB)
+org.apache.spark.storage.BlockManagerInfo:   Added rdd_1_2 in memory on 10.10.49.90:36148 (size: 98.9 MB, free: 75.4 MB)
+org.apache.spark.storage.BlockManagerMaster:   Updated info of block rdd_1_2
+org.apache.spark.storage.BlockManager:   Told master about block rdd_1_2
+org.apache.spark.storage.BlockManager:   Put block rdd_1_2 locally took  405 ms
+org.apache.spark.storage.BlockManager:   Putting block rdd_1_2 without replication took  405 ms
+org.apache.spark.storage.BlockManager:   Getting local block rdd_1_2
+org.apache.spark.storage.BlockManager:   Level for block rdd_1_2 is StorageLevel(disk, memory, deserialized, 1 replicas)
+org.apache.spark.storage.BlockManager:   Getting local block broadcast_1
+org.apache.spark.storage.BlockManager:   Level for block broadcast_1 is StorageLevel(disk, memory, deserialized, 1 replicas)
+org.apache.spark.storage.BlockManager:   Getting local block rdd_1_3
+org.apache.spark.storage.BlockManager:   Block rdd_1_3 was not found
+org.apache.spark.storage.BlockManager:   Getting remote block rdd_1_3
+org.apache.spark.storage.BlockManager:   Block rdd_1_3 not found
+org.apache.spark.storage.BlockManager:   Getting local block broadcast_0
+org.apache.spark.storage.BlockManager:   Level for block broadcast_0 is StorageLevel(disk, memory, deserialized, 1 replicas)
+org.apache.spark.storage.memory.MemoryStore:   Will not store rdd_1_3
+org.apache.spark.storage.memory.MemoryStore:   Not enough space to cache rdd_1_3 in memory! (computed 75.0 MB so far)
+org.apache.spark.storage.memory.MemoryStore:   Memory use = 333.8 MB (blocks) + 74.8 MB (scratch space shared across 1 tasks(s)) = 408.5 MB. Storage limit = 408.9 MB.
+org.apache.spark.storage.BlockManager:   Persisting block rdd_1_3 to disk instead.
+org.apache.spark.storage.DiskStore:   Attempting to put block rdd_1_3
+org.apache.spark.storage.DiskStore:   Block rdd_1_3 stored as 33.5 MB file on disk in 533 ms
+org.apache.spark.storage.BlockManagerInfo:   Added rdd_1_3 on disk on 10.10.49.90:36148 (size: 33.5 MB)
+org.apache.spark.storage.BlockManagerMaster:   Updated info of block rdd_1_3
+org.apache.spark.storage.BlockManager:   Told master about block rdd_1_3
+org.apache.spark.storage.BlockManager:   Put block rdd_1_3 locally took  777 ms
+org.apache.spark.storage.BlockManager:   Putting block rdd_1_3 without replication took  777 ms
+org.apache.spark.storage.BlockManager:   Getting local block rdd_1_3
+org.apache.spark.storage.BlockManager:   Level for block rdd_1_3 is StorageLevel(disk, memory, deserialized, 1 replicas)
+org.apache.spark.storage.memory.MemoryStore:   Will not store rdd_1_3
+org.apache.spark.storage.memory.MemoryStore:   Not enough space to cache rdd_1_3 in memory! (computed 71.2 MB so far)
+org.apache.spark.storage.memory.MemoryStore:   Memory use = 333.8 MB (blocks) + 71.2 MB (scratch space shared across 1 tasks(s)) = 404.9 MB. Storage limit = 408.9 MB.
+org.apache.spark.storage.BlockManager:   Getting local block broadcast_1
+org.apache.spark.storage.BlockManager:   Level for block broadcast_1 is StorageLevel(disk, memory, deserialized, 1 replicas)
+org.apache.spark.storage.BlockManager:   Getting local block rdd_1_4
+org.apache.spark.storage.BlockManager:   Block rdd_1_4 was not found
+org.apache.spark.storage.BlockManager:   Getting remote block rdd_1_4
+org.apache.spark.storage.BlockManager:   Block rdd_1_4 not found
+org.apache.spark.storage.BlockManager:   Getting local block broadcast_0
+org.apache.spark.storage.BlockManager:   Level for block broadcast_0 is StorageLevel(disk, memory, deserialized, 1 replicas)
+org.apache.spark.storage.memory.MemoryStore:   Will not store rdd_1_4
+org.apache.spark.storage.memory.MemoryStore:   Not enough space to cache rdd_1_4 in memory! (computed 62.8 MB so far)
+org.apache.spark.storage.memory.MemoryStore:   Memory use = 333.8 MB (blocks) + 62.8 MB (scratch space shared across 1 tasks(s)) = 396.6 MB. Storage limit = 408.9 MB.
+org.apache.spark.storage.BlockManager:   Persisting block rdd_1_4 to disk instead.
+org.apache.spark.storage.DiskStore:   Attempting to put block rdd_1_4
+org.apache.spark.storage.DiskStore:   Block rdd_1_4 stored as 33.5 MB file on disk in 363 ms
+org.apache.spark.storage.BlockManagerInfo:   Added rdd_1_4 on disk on 10.10.49.90:36148 (size: 33.5 MB)
+org.apache.spark.storage.BlockManagerMaster:   Updated info of block rdd_1_4
+org.apache.spark.storage.BlockManager:   Told master about block rdd_1_4
+org.apache.spark.storage.BlockManager:   Put block rdd_1_4 locally took  573 ms
+org.apache.spark.storage.BlockManager:   Putting block rdd_1_4 without replication took  573 ms
+org.apache.spark.storage.BlockManager:   Getting local block rdd_1_4
+org.apache.spark.storage.BlockManager:   Level for block rdd_1_4 is StorageLevel(disk, memory, deserialized, 1 replicas)
+org.apache.spark.storage.memory.MemoryStore:   Will not store rdd_1_4
+org.apache.spark.storage.memory.MemoryStore:   Not enough space to cache rdd_1_4 in memory! (computed 62.0 MB so far)
+org.apache.spark.storage.memory.MemoryStore:   Memory use = 333.8 MB (blocks) + 61.3 MB (scratch space shared across 1 tasks(s)) = 395.1 MB. Storage limit = 408.9 MB.
+org.apache.spark.storage.BlockManager:   Getting local block broadcast_1
+org.apache.spark.storage.BlockManager:   Level for block broadcast_1 is StorageLevel(disk, memory, deserialized, 1 replicas)
+org.apache.spark.storage.BlockManager:   Getting local block rdd_1_5
+org.apache.spark.storage.BlockManager:   Block rdd_1_5 was not found
+org.apache.spark.storage.BlockManager:   Getting remote block rdd_1_5
+org.apache.spark.storage.BlockManager:   Block rdd_1_5 not found
+org.apache.spark.storage.BlockManager:   Getting local block broadcast_0
+org.apache.spark.storage.BlockManager:   Level for block broadcast_0 is StorageLevel(disk, memory, deserialized, 1 replicas)
+org.apache.spark.storage.memory.MemoryStore:   Will not store rdd_1_5
+org.apache.spark.storage.memory.MemoryStore:   Not enough space to cache rdd_1_5 in memory! (computed 68.0 MB so far)
+org.apache.spark.storage.memory.MemoryStore:   Memory use = 333.8 MB (blocks) + 68.0 MB (scratch space shared across 1 tasks(s)) = 401.8 MB. Storage limit = 408.9 MB.
+org.apache.spark.storage.BlockManager:   Persisting block rdd_1_5 to disk instead.
+org.apache.spark.storage.DiskStore:   Attempting to put block rdd_1_5
+org.apache.spark.storage.DiskStore:   Block rdd_1_5 stored as 33.5 MB file on disk in 350 ms
+org.apache.spark.storage.BlockManagerInfo:   Added rdd_1_5 on disk on 10.10.49.90:36148 (size: 33.5 MB)
+org.apache.spark.storage.BlockManagerMaster:   Updated info of block rdd_1_5
+org.apache.spark.storage.BlockManager:   Told master about block rdd_1_5
+org.apache.spark.storage.BlockManager:   Put block rdd_1_5 locally took  541 ms
+org.apache.spark.storage.BlockManager:   Putting block rdd_1_5 without replication took  541 ms
+org.apache.spark.storage.BlockManager:   Getting local block rdd_1_5
+org.apache.spark.storage.BlockManager:   Level for block rdd_1_5 is StorageLevel(disk, memory, deserialized, 1 replicas)
+org.apache.spark.storage.memory.MemoryStore:   Will not store rdd_1_5
+org.apache.spark.storage.memory.MemoryStore:   Not enough space to cache rdd_1_5 in memory! (computed 64.0 MB so far)
+org.apache.spark.storage.memory.MemoryStore:   Memory use = 333.8 MB (blocks) + 64.0 MB (scratch space shared across 1 tasks(s)) = 397.7 MB. Storage limit = 408.9 MB.
+org.apache.spark.storage.BlockManager:   Getting local block broadcast_1
+org.apache.spark.storage.BlockManager:   Level for block broadcast_1 is StorageLevel(disk, memory, deserialized, 1 replicas)
+org.apache.spark.storage.BlockManager:   Getting local block rdd_1_6
+org.apache.spark.storage.BlockManager:   Block rdd_1_6 was not found
+org.apache.spark.storage.BlockManager:   Getting remote block rdd_1_6
+org.apache.spark.storage.BlockManager:   Block rdd_1_6 not found
+org.apache.spark.storage.BlockManager:   Getting local block broadcast_0
+org.apache.spark.storage.BlockManager:   Level for block broadcast_0 is StorageLevel(disk, memory, deserialized, 1 replicas)
+org.apache.spark.storage.memory.MemoryStore:   Will not store rdd_1_6
+org.apache.spark.storage.memory.MemoryStore:   Not enough space to cache rdd_1_6 in memory! (computed 62.5 MB so far)
+org.apache.spark.storage.memory.MemoryStore:   Memory use = 333.8 MB (blocks) + 62.5 MB (scratch space shared across 1 tasks(s)) = 396.2 MB. Storage limit = 408.9 MB.
+org.apache.spark.storage.BlockManager:   Persisting block rdd_1_6 to disk instead.
+org.apache.spark.storage.DiskStore:   Attempting to put block rdd_1_6
+org.apache.spark.storage.DiskStore:   Block rdd_1_6 stored as 33.5 MB file on disk in 341 ms
+org.apache.spark.storage.BlockManagerInfo:   Added rdd_1_6 on disk on 10.10.49.90:36148 (size: 33.5 MB)
+org.apache.spark.storage.BlockManagerMaster:   Updated info of block rdd_1_6
+org.apache.spark.storage.BlockManager:   Told master about block rdd_1_6
+org.apache.spark.storage.BlockManager:   Put block rdd_1_6 locally took  542 ms
+org.apache.spark.storage.BlockManager:   Putting block rdd_1_6 without replication took  542 ms
+org.apache.spark.storage.BlockManager:   Getting local block rdd_1_6
+org.apache.spark.storage.BlockManager:   Level for block rdd_1_6 is StorageLevel(disk, memory, deserialized, 1 replicas)
+org.apache.spark.storage.memory.MemoryStore:   Will not store rdd_1_6
+org.apache.spark.storage.memory.MemoryStore:   Not enough space to cache rdd_1_6 in memory! (computed 61.1 MB so far)
+org.apache.spark.storage.memory.MemoryStore:   Memory use = 333.8 MB (blocks) + 61.1 MB (scratch space shared across 1 tasks(s)) = 394.9 MB. Storage limit = 408.9 MB.
+org.apache.spark.storage.BlockManager:   Getting local block broadcast_1
+org.apache.spark.storage.BlockManager:   Level for block broadcast_1 is StorageLevel(disk, memory, deserialized, 1 replicas)
+org.apache.spark.storage.BlockManager:   Getting local block rdd_1_7
+org.apache.spark.storage.BlockManager:   Block rdd_1_7 was not found
+org.apache.spark.storage.BlockManager:   Getting remote block rdd_1_7
+org.apache.spark.storage.BlockManager:   Block rdd_1_7 not found
+org.apache.spark.storage.BlockManager:   Getting local block broadcast_0
+org.apache.spark.storage.BlockManager:   Level for block broadcast_0 is StorageLevel(disk, memory, deserialized, 1 replicas)
+org.apache.spark.storage.memory.MemoryStore:   Block rdd_1_7 stored as values in memory (estimated size 48.7 MB, free 26.5 MB)
+org.apache.spark.storage.BlockManagerInfo:   Added rdd_1_7 in memory on 10.10.49.90:36148 (size: 48.7 MB, free: 26.7 MB)
+org.apache.spark.storage.BlockManagerMaster:   Updated info of block rdd_1_7
+org.apache.spark.storage.BlockManager:   Told master about block rdd_1_7
+org.apache.spark.storage.BlockManager:   Put block rdd_1_7 locally took  129 ms
+org.apache.spark.storage.BlockManager:   Putting block rdd_1_7 without replication took  129 ms
+org.apache.spark.storage.BlockManager:   Getting local block rdd_1_7
+org.apache.spark.storage.BlockManager:   Level for block rdd_1_7 is StorageLevel(disk, memory, deserialized, 1 replicas)
+org.apache.spark.storage.memory.MemoryStore:   Block broadcast_2 stored as values in memory (estimated size 225.3 KB, free 26.3 MB)
+org.apache.spark.storage.BlockManager:   Put block broadcast_2 locally took  12 ms
+org.apache.spark.storage.BlockManager:   Putting block broadcast_2 without replication took  12 ms
+org.apache.spark.storage.memory.MemoryStore:   Block broadcast_2_piece0 stored as bytes in memory (estimated size 20.0 KB, free 26.3 MB)
+org.apache.spark.storage.BlockManagerInfo:   Added broadcast_2_piece0 in memory on 10.10.49.90:36148 (size: 20.0 KB, free: 26.7 MB)
+org.apache.spark.storage.BlockManagerMaster:   Updated info of block broadcast_2_piece0
+org.apache.spark.storage.BlockManager:   Told master about block broadcast_2_piece0
+org.apache.spark.storage.BlockManager:   Put block broadcast_2_piece0 locally took  1 ms
+org.apache.spark.storage.BlockManager:   Putting block broadcast_2_piece0 without replication took  1 ms
+org.apache.spark.storage.BlockManager:   Getting local block broadcast_2
+org.apache.spark.storage.BlockManager:   Level for block broadcast_2 is StorageLevel(disk, memory, deserialized, 1 replicas)
+org.apache.spark.storage.memory.MemoryStore:   Block broadcast_3 stored as values in memory (estimated size 3.3 KB, free 26.2 MB)
+org.apache.spark.storage.BlockManager:   Put block broadcast_3 locally took  1 ms
+org.apache.spark.storage.BlockManager:   Putting block broadcast_3 without replication took  1 ms
+org.apache.spark.storage.memory.MemoryStore:   Block broadcast_3_piece0 stored as bytes in memory (estimated size 1963.0 B, free 26.2 MB)
+org.apache.spark.storage.BlockManagerInfo:   Added broadcast_3_piece0 in memory on 10.10.49.90:36148 (size: 1963.0 B, free: 26.7 MB)
+org.apache.spark.storage.BlockManagerMaster:   Updated info of block broadcast_3_piece0
+org.apache.spark.storage.BlockManager:   Told master about block broadcast_3_piece0
+org.apache.spark.storage.BlockManager:   Put block broadcast_3_piece0 locally took  1 ms
+org.apache.spark.storage.BlockManager:   Putting block broadcast_3_piece0 without replication took  1 ms
+org.apache.spark.storage.BlockManager:   Getting local block broadcast_3
+org.apache.spark.storage.BlockManager:   Level for block broadcast_3 is StorageLevel(disk, memory, deserialized, 1 replicas)
+org.apache.spark.storage.BlockManager:   Getting local block rdd_4_0
+org.apache.spark.storage.BlockManager:   Block rdd_4_0 was not found
+org.apache.spark.storage.BlockManager:   Getting remote block rdd_4_0
+org.apache.spark.storage.BlockManager:   Block rdd_4_0 not found
+org.apache.spark.storage.BlockManager:   Getting local block broadcast_2
+org.apache.spark.storage.BlockManager:   Level for block broadcast_2 is StorageLevel(disk, memory, deserialized, 1 replicas)
+org.apache.spark.storage.BlockManagerSlaveEndpoint:   removing broadcast 1
+org.apache.spark.storage.BlockManager:   Removing broadcast 1
+org.apache.spark.storage.BlockManager:   Removing block broadcast_1
+org.apache.spark.storage.memory.MemoryStore:   Block broadcast_1 of size 3328 dropped from memory (free 27525360)
+org.apache.spark.storage.BlockManager:   Removing block broadcast_1_piece0
+org.apache.spark.storage.memory.MemoryStore:   Block broadcast_1_piece0 of size 1969 dropped from memory (free 27527329)
+org.apache.spark.storage.BlockManagerInfo:   Removed broadcast_1_piece0 on 10.10.49.90:36148 in memory (size: 1969.0 B, free: 26.7 MB)
+org.apache.spark.storage.BlockManagerMaster:   Updated info of block broadcast_1_piece0
+org.apache.spark.storage.BlockManager:   Told master about block broadcast_1_piece0
+org.apache.spark.storage.BlockManagerSlaveEndpoint:   Done removing broadcast 1, response is 0
+org.apache.spark.storage.BlockManagerSlaveEndpoint:   Sent response: 0 to 10.10.49.90:41222
+org.apache.spark.storage.memory.MemoryStore:   2 blocks selected for dropping (119.2 MB bytes)
+org.apache.spark.storage.BlockManager:   Dropping block broadcast_0_piece0 from memory
+org.apache.spark.storage.BlockManager:   Writing block broadcast_0_piece0 to disk
+org.apache.spark.storage.DiskStore:   Attempting to put block broadcast_0_piece0
+org.apache.spark.storage.DiskStore:   Block broadcast_0_piece0 stored as 20.0 KB file on disk in 2 ms
+org.apache.spark.storage.memory.MemoryStore:   Block broadcast_0_piece0 of size 20453 dropped from memory (free 27547782)
+org.apache.spark.storage.BlockManagerInfo:   Added broadcast_0_piece0 on disk on 10.10.49.90:36148 (size: 20.0 KB)
+org.apache.spark.storage.BlockManagerMaster:   Updated info of block broadcast_0_piece0
+org.apache.spark.storage.BlockManager:   Told master about block broadcast_0_piece0
+org.apache.spark.storage.BlockManager:   Dropping block rdd_1_0 from memory
+org.apache.spark.storage.BlockManager:   Writing block rdd_1_0 to disk
+org.apache.spark.storage.DiskStore:   Attempting to put block rdd_1_0
+org.apache.spark.storage.DiskStore:   Block rdd_1_0 stored as 33.5 MB file on disk in 219 ms
+org.apache.spark.storage.memory.MemoryStore:   Block rdd_1_0 of size 124950776 dropped from memory (free 152498558)
+org.apache.spark.storage.BlockManagerInfo:   Added rdd_1_0 on disk on 10.10.49.90:36148 (size: 33.5 MB)
+org.apache.spark.storage.BlockManagerMaster:   Updated info of block rdd_1_0
+org.apache.spark.storage.BlockManager:   Told master about block rdd_1_0
+org.apache.spark.storage.memory.MemoryStore:   After dropping 2 blocks, free memory is 145.4 MB
+org.apache.spark.storage.memory.MemoryStore:   1 blocks selected for dropping (115.4 MB bytes)
+org.apache.spark.storage.BlockManager:   Dropping block rdd_1_1 from memory
+org.apache.spark.storage.BlockManager:   Writing block rdd_1_1 to disk
+org.apache.spark.storage.DiskStore:   Attempting to put block rdd_1_1
+org.apache.spark.storage.DiskStore:   Block rdd_1_1 stored as 33.5 MB file on disk in 220 ms
+org.apache.spark.storage.memory.MemoryStore:   Block rdd_1_1 of size 121020168 dropped from memory (free 273518726)
+org.apache.spark.storage.BlockManagerInfo:   Added rdd_1_1 on disk on 10.10.49.90:36148 (size: 33.5 MB)
+org.apache.spark.storage.BlockManagerMaster:   Updated info of block rdd_1_1
+org.apache.spark.storage.BlockManager:   Told master about block rdd_1_1
+org.apache.spark.storage.memory.MemoryStore:   After dropping 1 blocks, free memory is 260.8 MB
+org.apache.spark.storage.memory.MemoryStore:   Block rdd_4_0 stored as values in memory (estimated size 92.3 MB, free 168.5 MB)
+org.apache.spark.storage.BlockManagerInfo:   Added rdd_4_0 in memory on 10.10.49.90:36148 (size: 92.3 MB, free: 169.0 MB)
+org.apache.spark.storage.BlockManagerMaster:   Updated info of block rdd_4_0
+org.apache.spark.storage.BlockManager:   Told master about block rdd_4_0
+org.apache.spark.storage.BlockManager:   Put block rdd_4_0 locally took  1236 ms
+org.apache.spark.storage.BlockManager:   Putting block rdd_4_0 without replication took  1236 ms
+org.apache.spark.storage.BlockManager:   Getting local block rdd_4_0
+org.apache.spark.storage.BlockManager:   Level for block rdd_4_0 is StorageLevel(memory, deserialized, 1 replicas)
+org.apache.spark.storage.BlockManager:   Getting local block broadcast_3
+org.apache.spark.storage.BlockManager:   Level for block broadcast_3 is StorageLevel(disk, memory, deserialized, 1 replicas)
+org.apache.spark.storage.BlockManager:   Getting local block rdd_4_1
+org.apache.spark.storage.BlockManager:   Block rdd_4_1 was not found
+org.apache.spark.storage.BlockManager:   Getting remote block rdd_4_1
+org.apache.spark.storage.BlockManager:   Block rdd_4_1 not found
+org.apache.spark.storage.BlockManager:   Getting local block broadcast_2
+org.apache.spark.storage.BlockManager:   Level for block broadcast_2 is StorageLevel(disk, memory, deserialized, 1 replicas)
+org.apache.spark.storage.memory.MemoryStore:   Block rdd_4_1 stored as values in memory (estimated size 105.8 MB, free 62.7 MB)
+org.apache.spark.storage.BlockManagerInfo:   Added rdd_4_1 in memory on 10.10.49.90:36148 (size: 105.8 MB, free: 63.2 MB)
+org.apache.spark.storage.BlockManagerMaster:   Updated info of block rdd_4_1
+org.apache.spark.storage.BlockManager:   Told master about block rdd_4_1
+org.apache.spark.storage.BlockManager:   Put block rdd_4_1 locally took  261 ms
+org.apache.spark.storage.BlockManager:   Putting block rdd_4_1 without replication took  261 ms
+org.apache.spark.storage.BlockManager:   Getting local block rdd_4_1
+org.apache.spark.storage.BlockManager:   Level for block rdd_4_1 is StorageLevel(memory, deserialized, 1 replicas)
+org.apache.spark.storage.BlockManager:   Getting local block broadcast_3
+org.apache.spark.storage.BlockManager:   Level for block broadcast_3 is StorageLevel(disk, memory, deserialized, 1 replicas)
+org.apache.spark.storage.BlockManager:   Getting local block rdd_4_2
+org.apache.spark.storage.BlockManager:   Block rdd_4_2 was not found
+org.apache.spark.storage.BlockManager:   Getting remote block rdd_4_2
+org.apache.spark.storage.BlockManager:   Block rdd_4_2 not found
+org.apache.spark.storage.BlockManager:   Getting local block broadcast_2
+org.apache.spark.storage.BlockManager:   Level for block broadcast_2 is StorageLevel(disk, memory, deserialized, 1 replicas)
+org.apache.spark.storage.memory.MemoryStore:   1 blocks selected for dropping (98.9 MB bytes)
+org.apache.spark.storage.BlockManager:   Dropping block rdd_1_2 from memory
+org.apache.spark.storage.BlockManager:   Writing block rdd_1_2 to disk
+org.apache.spark.storage.DiskStore:   Attempting to put block rdd_1_2
+org.apache.spark.storage.DiskStore:   Block rdd_1_2 stored as 33.5 MB file on disk in 233 ms
+org.apache.spark.storage.memory.MemoryStore:   Block rdd_1_2 of size 103742664 dropped from memory (free 169527998)
+org.apache.spark.storage.BlockManagerInfo:   Added rdd_1_2 on disk on 10.10.49.90:36148 (size: 33.5 MB)
+org.apache.spark.storage.BlockManagerMaster:   Updated info of block rdd_1_2
+org.apache.spark.storage.BlockManager:   Told master about block rdd_1_2
+org.apache.spark.storage.memory.MemoryStore:   After dropping 1 blocks, free memory is 161.7 MB
+org.apache.spark.storage.memory.MemoryStore:   Block rdd_4_2 stored as values in memory (estimated size 105.1 MB, free 56.6 MB)
+org.apache.spark.storage.BlockManagerInfo:   Added rdd_4_2 in memory on 10.10.49.90:36148 (size: 105.1 MB, free: 57.1 MB)
+org.apache.spark.storage.BlockManagerMaster:   Updated info of block rdd_4_2
+org.apache.spark.storage.BlockManager:   Told master about block rdd_4_2
+org.apache.spark.storage.BlockManager:   Put block rdd_4_2 locally took  1149 ms
+org.apache.spark.storage.BlockManager:   Putting block rdd_4_2 without replication took  1149 ms
+org.apache.spark.storage.BlockManager:   Getting local block rdd_4_2
+org.apache.spark.storage.BlockManager:   Level for block rdd_4_2 is StorageLevel(memory, deserialized, 1 replicas)
+org.apache.spark.storage.BlockManager:   Getting local block broadcast_3
+org.apache.spark.storage.BlockManager:   Level for block broadcast_3 is StorageLevel(disk, memory, deserialized, 1 replicas)
+org.apache.spark.storage.BlockManager:   Getting local block rdd_4_3
+org.apache.spark.storage.BlockManager:   Block rdd_4_3 was not found
+org.apache.spark.storage.BlockManager:   Getting remote block rdd_4_3
+org.apache.spark.storage.BlockManager:   Block rdd_4_3 not found
+org.apache.spark.storage.BlockManager:   Getting local block broadcast_2
+org.apache.spark.storage.BlockManager:   Level for block broadcast_2 is StorageLevel(disk, memory, deserialized, 1 replicas)
+org.apache.spark.storage.memory.MemoryStore:   2 blocks selected for dropping (48.9 MB bytes)
+org.apache.spark.storage.BlockManager:   Dropping block broadcast_0 from memory
+org.apache.spark.storage.BlockManager:   Writing block broadcast_0 to disk
+org.apache.spark.storage.DiskStore:   Attempting to put block broadcast_0
+org.apache.spark.storage.DiskStore:   Block broadcast_0 stored as 20.0 KB file on disk in 25 ms
+org.apache.spark.storage.memory.MemoryStore:   Block broadcast_0 of size 230632 dropped from memory (free 59596862)
+org.apache.spark.storage.BlockManager:   Dropping block rdd_1_7 from memory
+org.apache.spark.storage.BlockManager:   Writing block rdd_1_7 to disk
+org.apache.spark.storage.DiskStore:   Attempting to put block rdd_1_7
+org.apache.spark.storage.DiskStore:   Block rdd_1_7 stored as 14.5 MB file on disk in 122 ms
+org.apache.spark.storage.memory.MemoryStore:   Block rdd_1_7 of size 51014272 dropped from memory (free 110611134)
+org.apache.spark.storage.BlockManagerInfo:   Added rdd_1_7 on disk on 10.10.49.90:36148 (size: 14.5 MB)
+org.apache.spark.storage.BlockManagerMaster:   Updated info of block rdd_1_7
+org.apache.spark.storage.BlockManager:   Told master about block rdd_1_7
+org.apache.spark.storage.memory.MemoryStore:   After dropping 2 blocks, free memory is 105.5 MB
+org.apache.spark.storage.memory.MemoryStore:   Will not store rdd_4_3
+org.apache.spark.storage.memory.MemoryStore:   Not enough space to cache rdd_4_3 in memory! (computed 94.6 MB so far)
+org.apache.spark.storage.memory.MemoryStore:   Memory use = 303.4 MB (blocks) + 94.6 MB (scratch space shared across 1 tasks(s)) = 398.0 MB. Storage limit = 408.9 MB.
+org.apache.spark.storage.BlockManager:   Block rdd_4_3 could not be removed as it was not found on disk or in memory
+org.apache.spark.storage.BlockManager:   Putting block rdd_4_3 failed
+org.apache.spark.storage.BlockManager:   Putting block rdd_4_3 without replication took  467 ms
+org.apache.spark.storage.BlockManager:   Getting local block broadcast_3
+org.apache.spark.storage.BlockManager:   Level for block broadcast_3 is StorageLevel(disk, memory, deserialized, 1 replicas)
+org.apache.spark.storage.BlockManager:   Getting local block rdd_4_4
+org.apache.spark.storage.BlockManager:   Block rdd_4_4 was not found
+org.apache.spark.storage.BlockManager:   Getting remote block rdd_4_4
+org.apache.spark.storage.BlockManager:   Block rdd_4_4 not found
+org.apache.spark.storage.BlockManager:   Getting local block broadcast_2
+org.apache.spark.storage.BlockManager:   Level for block broadcast_2 is StorageLevel(disk, memory, deserialized, 1 replicas)
+org.apache.spark.storage.memory.MemoryStore:   Will not store rdd_4_4
+org.apache.spark.storage.memory.MemoryStore:   Not enough space to cache rdd_4_4 in memory! (computed 73.9 MB so far)
+org.apache.spark.storage.memory.MemoryStore:   Memory use = 303.4 MB (blocks) + 73.9 MB (scratch space shared across 1 tasks(s)) = 377.3 MB. Storage limit = 408.9 MB.
+org.apache.spark.storage.BlockManager:   Block rdd_4_4 could not be removed as it was not found on disk or in memory
+org.apache.spark.storage.BlockManager:   Putting block rdd_4_4 failed
+org.apache.spark.storage.BlockManager:   Putting block rdd_4_4 without replication took  571 ms
+org.apache.spark.storage.memory.MemoryStore:   Block broadcast_4 stored as values in memory (estimated size 3.3 KB, free 105.5 MB)
+org.apache.spark.storage.BlockManager:   Put block broadcast_4 locally took  1 ms
+org.apache.spark.storage.BlockManager:   Putting block broadcast_4 without replication took  1 ms
+org.apache.spark.storage.memory.MemoryStore:   Block broadcast_4_piece0 stored as bytes in memory (estimated size 1971.0 B, free 105.5 MB)
+org.apache.spark.storage.BlockManagerInfo:   Added broadcast_4_piece0 in memory on 10.10.49.90:36148 (size: 1971.0 B, free: 105.7 MB)
+org.apache.spark.storage.BlockManagerMaster:   Updated info of block broadcast_4_piece0
+org.apache.spark.storage.BlockManager:   Told master about block broadcast_4_piece0
+org.apache.spark.storage.BlockManager:   Put block broadcast_4_piece0 locally took  1 ms
+org.apache.spark.storage.BlockManager:   Putting block broadcast_4_piece0 without replication took  1 ms
+org.apache.spark.storage.BlockManager:   Getting local block broadcast_4
+org.apache.spark.storage.BlockManager:   Level for block broadcast_4 is StorageLevel(disk, memory, deserialized, 1 replicas)
+org.apache.spark.storage.BlockManager:   Getting local block rdd_1_0
+org.apache.spark.storage.BlockManager:   Level for block rdd_1_0 is StorageLevel(disk, memory, deserialized, 1 replicas)
+org.apache.spark.storage.memory.MemoryStore:   3 blocks selected for dropping (92.4 MB bytes)
+org.apache.spark.storage.BlockManager:   Dropping block broadcast_2_piece0 from memory
+org.apache.spark.storage.BlockManager:   Writing block broadcast_2_piece0 to disk
+org.apache.spark.storage.DiskStore:   Attempting to put block broadcast_2_piece0
+org.apache.spark.storage.DiskStore:   Block broadcast_2_piece0 stored as 20.0 KB file on disk in 0 ms
+org.apache.spark.storage.memory.MemoryStore:   Block broadcast_2_piece0 of size 20453 dropped from memory (free 110626288)
+org.apache.spark.storage.BlockManagerInfo:   Added broadcast_2_piece0 on disk on 10.10.49.90:36148 (size: 20.0 KB)
+org.apache.spark.storage.BlockManagerMaster:   Updated info of block broadcast_2_piece0
+org.apache.spark.storage.BlockManager:   Told master about block broadcast_2_piece0
+org.apache.spark.storage.BlockManager:   Dropping block broadcast_3_piece0 from memory
+org.apache.spark.storage.BlockManager:   Writing block broadcast_3_piece0 to disk
+org.apache.spark.storage.DiskStore:   Attempting to put block broadcast_3_piece0
+org.apache.spark.storage.DiskStore:   Block broadcast_3_piece0 stored as 1963.0 B file on disk in 0 ms
+org.apache.spark.storage.memory.MemoryStore:   Block broadcast_3_piece0 of size 1963 dropped from memory (free 110628251)
+org.apache.spark.storage.BlockManagerInfo:   Added broadcast_3_piece0 on disk on 10.10.49.90:36148 (size: 1963.0 B)
+org.apache.spark.storage.BlockManagerMaster:   Updated info of block broadcast_3_piece0
+org.apache.spark.storage.BlockManager:   Told master about block broadcast_3_piece0
+org.apache.spark.storage.BlockManager:   Dropping block rdd_4_0 from memory
+org.apache.spark.storage.memory.MemoryStore:   Block rdd_4_0 of size 96822512 dropped from memory (free 207450763)
+org.apache.spark.storage.BlockManagerInfo:   Removed rdd_4_0 on 10.10.49.90:36148 in memory (size: 92.3 MB, free: 198.1 MB)
+org.apache.spark.storage.BlockManagerMaster:   Updated info of block rdd_4_0
+org.apache.spark.storage.BlockManager:   Told master about block rdd_4_0
+org.apache.spark.storage.memory.MemoryStore:   After dropping 3 blocks, free memory is 197.8 MB
+org.apache.spark.storage.memory.MemoryStore:   Block rdd_1_0 stored as values in memory (estimated size 113.7 MB, free 84.2 MB)
+org.apache.spark.storage.BlockManager:   Found block rdd_1_0 locally
+org.apache.spark.storage.BlockManager:   Getting local block broadcast_4
+org.apache.spark.storage.BlockManager:   Level for block broadcast_4 is StorageLevel(disk, memory, deserialized, 1 replicas)
+org.apache.spark.storage.BlockManager:   Getting local block rdd_1_1
+org.apache.spark.storage.BlockManager:   Level for block rdd_1_1 is StorageLevel(disk, memory, deserialized, 1 replicas)
+org.apache.spark.storage.memory.MemoryStore:   1 blocks selected for dropping (105.8 MB bytes)
+org.apache.spark.storage.BlockManager:   Dropping block rdd_4_1 from memory
+org.apache.spark.storage.memory.MemoryStore:   Block rdd_4_1 of size 110910880 dropped from memory (free 199174987)
+org.apache.spark.storage.BlockManagerInfo:   Removed rdd_4_1 on 10.10.49.90:36148 in memory (size: 105.8 MB, free: 303.8 MB)
+org.apache.spark.storage.BlockManagerMaster:   Updated info of block rdd_4_1
+org.apache.spark.storage.BlockManager:   Told master about block rdd_4_1
+org.apache.spark.storage.memory.MemoryStore:   After dropping 1 blocks, free memory is 189.9 MB
+org.apache.spark.storage.memory.MemoryStore:   Block rdd_1_1 stored as values in memory (estimated size 111.1 MB, free 78.8 MB)
+org.apache.spark.storage.BlockManager:   Found block rdd_1_1 locally
+org.apache.spark.storage.BlockManager:   Getting local block broadcast_4
+org.apache.spark.storage.BlockManager:   Level for block broadcast_4 is StorageLevel(disk, memory, deserialized, 1 replicas)
+org.apache.spark.storage.BlockManager:   Getting local block rdd_1_2
+org.apache.spark.storage.BlockManager:   Level for block rdd_1_2 is StorageLevel(disk, memory, deserialized, 1 replicas)
+org.apache.spark.storage.memory.MemoryStore:   1 blocks selected for dropping (105.1 MB bytes)
+org.apache.spark.storage.BlockManager:   Dropping block rdd_4_2 from memory
+org.apache.spark.storage.memory.MemoryStore:   Block rdd_4_2 of size 110161768 dropped from memory (free 192838907)
+org.apache.spark.storage.BlockManagerInfo:   Removed rdd_4_2 on 10.10.49.90:36148 in memory (size: 105.1 MB, free: 408.9 MB)
+org.apache.spark.storage.BlockManagerMaster:   Updated info of block rdd_4_2
+org.apache.spark.storage.BlockManager:   Told master about block rdd_4_2
+org.apache.spark.storage.memory.MemoryStore:   After dropping 1 blocks, free memory is 183.9 MB
+org.apache.spark.storage.memory.MemoryStore:   Block rdd_1_2 stored as values in memory (estimated size 91.2 MB, free 92.7 MB)
+org.apache.spark.storage.BlockManager:   Found block rdd_1_2 locally
+org.apache.spark.storage.BlockManager:   Getting local block broadcast_4
+org.apache.spark.storage.BlockManager:   Level for block broadcast_4 is StorageLevel(disk, memory, deserialized, 1 replicas)
+org.apache.spark.storage.BlockManager:   Getting local block rdd_1_3
+org.apache.spark.storage.BlockManager:   Level for block rdd_1_3 is StorageLevel(disk, memory, deserialized, 1 replicas)
+org.apache.spark.storage.BlockManagerSlaveEndpoint:   removing broadcast 3
+org.apache.spark.storage.BlockManager:   Removing broadcast 3
+org.apache.spark.storage.BlockManager:   Removing block broadcast_3_piece0
+org.apache.spark.storage.BlockManagerInfo:   Removed broadcast_3_piece0 on 10.10.49.90:36148 on disk (size: 1963.0 B)
+org.apache.spark.storage.BlockManagerMaster:   Updated info of block broadcast_3_piece0
+org.apache.spark.storage.BlockManager:   Told master about block broadcast_3_piece0
+org.apache.spark.storage.BlockManager:   Removing block broadcast_3
+org.apache.spark.storage.memory.MemoryStore:   Block broadcast_3 of size 3328 dropped from memory (free 97169251)
+org.apache.spark.storage.BlockManagerSlaveEndpoint:   Done removing broadcast 3, response is 0
+org.apache.spark.storage.BlockManagerSlaveEndpoint:   Sent response: 0 to 10.10.49.90:41222
+org.apache.spark.storage.memory.MemoryStore:   Will not store rdd_1_3
+org.apache.spark.storage.memory.MemoryStore:   Not enough space to cache rdd_1_3 in memory! (computed 71.2 MB so far)
+org.apache.spark.storage.memory.MemoryStore:   Memory use = 316.2 MB (blocks) + 71.2 MB (scratch space shared across 1 tasks(s)) = 387.4 MB. Storage limit = 408.9 MB.
+org.apache.spark.storage.BlockManager:   Found block rdd_1_3 locally
+org.apache.spark.storage.BlockManager:   Getting local block broadcast_4
+org.apache.spark.storage.BlockManager:   Level for block broadcast_4 is StorageLevel(disk, memory, deserialized, 1 replicas)
+org.apache.spark.storage.BlockManager:   Getting local block rdd_1_4
+org.apache.spark.storage.BlockManager:   Level for block rdd_1_4 is StorageLevel(disk, memory, deserialized, 1 replicas)
+org.apache.spark.storage.memory.MemoryStore:   Will not store rdd_1_4
+org.apache.spark.storage.memory.MemoryStore:   Not enough space to cache rdd_1_4 in memory! (computed 62.0 MB so far)
+org.apache.spark.storage.memory.MemoryStore:   Memory use = 316.2 MB (blocks) + 61.3 MB (scratch space shared across 1 tasks(s)) = 377.5 MB. Storage limit = 408.9 MB.
+org.apache.spark.storage.BlockManager:   Found block rdd_1_4 locally
+org.apache.spark.storage.BlockManager:   Getting local block broadcast_4
+org.apache.spark.storage.BlockManager:   Level for block broadcast_4 is StorageLevel(disk, memory, deserialized, 1 replicas)
+org.apache.spark.storage.BlockManager:   Getting local block rdd_1_5
+org.apache.spark.storage.BlockManager:   Level for block rdd_1_5 is StorageLevel(disk, memory, deserialized, 1 replicas)
+org.apache.spark.storage.memory.MemoryStore:   Will not store rdd_1_5
+org.apache.spark.storage.memory.MemoryStore:   Not enough space to cache rdd_1_5 in memory! (computed 64.0 MB so far)
+org.apache.spark.storage.memory.MemoryStore:   Memory use = 316.2 MB (blocks) + 64.0 MB (scratch space shared across 1 tasks(s)) = 380.2 MB. Storage limit = 408.9 MB.
+org.apache.spark.storage.BlockManager:   Found block rdd_1_5 locally
+org.apache.spark.storage.BlockManager:   Getting local block broadcast_4
+org.apache.spark.storage.BlockManager:   Level for block broadcast_4 is StorageLevel(disk, memory, deserialized, 1 replicas)
+org.apache.spark.storage.BlockManager:   Getting local block rdd_1_6
+org.apache.spark.storage.BlockManager:   Level for block rdd_1_6 is StorageLevel(disk, memory, deserialized, 1 replicas)
+org.apache.spark.storage.memory.MemoryStore:   Will not store rdd_1_6
+org.apache.spark.storage.memory.MemoryStore:   Not enough space to cache rdd_1_6 in memory! (computed 121.1 MB so far)
+org.apache.spark.storage.memory.MemoryStore:   Memory use = 316.2 MB (blocks) + 91.7 MB (scratch space shared across 1 tasks(s)) = 407.9 MB. Storage limit = 408.9 MB.
+org.apache.spark.storage.BlockManager:   Found block rdd_1_6 locally
+org.apache.spark.storage.BlockManager:   Getting local block broadcast_4
+org.apache.spark.storage.BlockManager:   Level for block broadcast_4 is StorageLevel(disk, memory, deserialized, 1 replicas)
+org.apache.spark.storage.BlockManager:   Getting local block rdd_1_7
+org.apache.spark.storage.BlockManager:   Level for block rdd_1_7 is StorageLevel(disk, memory, deserialized, 1 replicas)
+org.apache.spark.storage.memory.MemoryStore:   Block rdd_1_7 stored as values in memory (estimated size 46.3 MB, free 46.4 MB)
+org.apache.spark.storage.BlockManager:   Found block rdd_1_7 locally
+org.apache.spark.storage.memory.MemoryStore:   MemoryStore cleared
+org.apache.spark.storage.RmemStore:   (RmemStoreStats), totalWritten, 261024555
+org.apache.spark.storage.RmemStore:   (RmemStoreStats), totalRead, 401393776
+org.apache.spark.storage.RmemStore:   (RmemStoreStats), maximumSize, 261026518
+org.apache.spark.storage.RmemStore:   (RmemStoreStats), timeWriting, 2414
+org.apache.spark.storage.RmemStore:   (RmemStoreStats), timeReading, 2
+org.apache.spark.storage.RmemStore:   (RmemStoreStats), timeOther, 4
+org.apache.spark.storage.BlockManager:   BlockManager stopped
+org.apache.spark.storage.BlockManagerMaster:   BlockManagerMaster stopped
+
+

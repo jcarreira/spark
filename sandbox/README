@@ -15,5 +15,10 @@ have a run script setup to do this.
 4. Shutdown and cleanup (won't clean up local files, just stops the spark jobs)
 ./stop-distr.sh
 
-
+## Gotcha's
+It seems that sometimes (paricularly after exceptions) that spark workers and/or
+the master stick around, even after calling ./stop-distr.sh. If things are
+acting weird or giving unexpected exceptions, try logging into your slaves and
+running "ps -Af | grep spark" and killing any workers you find. Likewise for
+the master.
 

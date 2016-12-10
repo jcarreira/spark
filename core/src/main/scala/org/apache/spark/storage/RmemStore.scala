@@ -78,12 +78,12 @@ private[spark] class RmemStore(conf: SparkConf, diskManager: DiskBlockManager) e
     logTrace(s"RMEM getSize($blockId)")
 
     try {
-      BM.getBuffer(blockId.name).getSize()
+      return BM.getBuffer(blockId.name).getSize()
     } catch {
       /* Disk store would create an empty file and return 0 here. We are more strict */
       case ex: Throwable => {
-        logError(s"Getting size of non-existent block $blockId")
-        throw ex
+        logWarning(s"Getting size of non-existent block $blockId")
+        return 0L
       }
     }
   }
@@ -217,12 +217,11 @@ private[spark] class RmemStore(conf: SparkConf, diskManager: DiskBlockManager) e
       }
     }
 
-    logTrace("RMEM geting " + RBuf.getSize + s"for $blockId")
-    val localBuf = ByteBuffer.allocate(RBuf.getSize())
+    logTrace("RMEM geting " + RBuf.getSize + s" bytes for $blockId")
+    val localBuf = ByteBuffer.allocateDirect(RBuf.getSize())
     try {
       RBuf.read(localBuf)
-      localBuf.flip()
-      logTrace(s"RMEM getBytes($blockId) Succeeded")
+      logTrace(s"RMEM getBytes($blockId) read " + localBuf.limit() + " bytes")
       new ChunkedByteBuffer(localBuf)
     } catch {
       case ex: Throwable => {
