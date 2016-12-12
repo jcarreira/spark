@@ -9,7 +9,7 @@ don't already know what this is, you probably don't want to use this repo!
     ./build.sh
     cd ../../
 
-    ./copy_jars.sh
+    ./copy_jar.sh
 
     ./build/mvn -DskipTests clean package
 
